@@ -4,6 +4,7 @@ services:
       context: ../backend
       dockerfile: ../infra/docker/backend/Dockerfile
     container_name: osms-backend
+    init: true
     ports:
       - "5000:5000"
     environment:
@@ -12,12 +13,19 @@ services:
     volumes:
       - ../backend:/app
       - /app/node_modules
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:5000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   frontend:
     build:
       context: ../frontend
       dockerfile: ../infra/docker/frontend/Dockerfile
     container_name: osms-frontend
+    init: true
     ports:
       - "5173:5173"
     environment:
@@ -26,4 +34,6 @@ services:
       - ../frontend:/app
       - /app/node_modules
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+
