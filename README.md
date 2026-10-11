@@ -18,6 +18,7 @@ This repository provides containerized local development configurations for both
 1. **Environment Setup**
 
    Copy the `.env.example` template to `.env` in the `infra` directory:
+
    ```bash
    cp .env.example .env
    ```
@@ -25,11 +26,18 @@ This repository provides containerized local development configurations for both
 2. **Start Services**
 
    Build and start the application containers:
+
    ```bash
    docker compose up --build
    ```
 
+   The Compose MongoDB service runs as a single-node replica set and initializes it through its
+   health check. The backend connects using a replica-set URI because checkout requires
+   multi-document transactions. Deployed MongoDB services must also provide replica-set or
+   sharded-cluster transaction support; supply credentials through deployment secrets.
+
    To run containers in background (detached mode):
+
    ```bash
    docker compose up --build -d
    ```
@@ -60,4 +68,3 @@ infra/
 ├── .env.example
 └── README.md
 ```
-
