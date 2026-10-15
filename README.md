@@ -2,6 +2,21 @@
 
 Infrastructure, Docker, CI/CD, and deployment configurations for the Optical Shop Management System (OSMS).
 
+## Chatbot usage TTL deployment gate
+
+Before backend startup, Compose runs the one-shot `chatbot-usage-index` service.
+It provisions/verifies the `chatbotusages` single-field `{ expiresAt: 1 }` index
+with `expireAfterSeconds: 0` and checks the unique Customer `_id` key. Backend
+startup depends on successful completion. This is independent of Mongoose
+`autoIndex`; existing incompatible expiry indexes fail the gate without dropping
+or replacing any indexes. Set `MONGODB_DATABASE` to the exact database selected
+by `MONGODB_URI`.
+
+Follow [the deployment runbook](docs/chatbot-usage-ttl.md) for managed staging and
+production, least-privilege index provisioning, verification evidence, synthetic
+TTL smoke tests and administrative Customer deletion. The scripts and CI do not
+constitute evidence that a production index has been provisioned.
+
 ## 🚀 Local Development Setup (Docker Compose)
 
 This repository provides containerized local development configurations for both the **Backend** and **Frontend** services using Docker Compose.
