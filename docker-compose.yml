@@ -17,6 +17,23 @@ services:
       timeout: 5s
       retries: 10
 
+  chatbot-usage-index:
+    image: mongo:8.0
+    restart: "no"
+    environment:
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/osms-dev?replicaSet=osms-rs}
+      OSMS_TARGET_DATABASE: ${MONGODB_DATABASE:-osms-dev}
+      OSMS_CHATBOT_INDEX_MODE: apply
+    volumes:
+      - ./scripts/chatbot-usage-index.js:/scripts/chatbot-usage-index.js:ro
+    command:
+      - sh
+      - -c
+      - exec mongosh "$$MONGODB_URI" --quiet --file /scripts/chatbot-usage-index.js
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
   backend:
     build:
       context: ../backend
@@ -37,6 +54,8 @@ services:
     depends_on:
       mongodb:
         condition: service_healthy
+      chatbot-usage-index:
+        condition: service_completed_successfully
     healthcheck:
       test:
         [

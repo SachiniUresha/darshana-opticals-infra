@@ -1,0 +1,49 @@
+name: Chatbot TTL deployment checks
+
+on:
+  push:
+  pull_request:
+    branches: [develop]
+
+jobs:
+  chatbot-ttl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Unit tests for provisioning guards and cleanup
+        run: node --test tests/chatbot-usage-index.test.cjs
+      - name: Validate Compose configuration
+        run: docker compose config --quiet
+      - name: Start isolated MongoDB
+        run: |
+          docker run -d --name ttl-mongodb mongo:8.0
+          for attempt in $(seq 1 30); do
+            if docker exec ttl-mongodb mongosh --quiet --eval 'db.adminCommand({ping:1})' >/dev/null 2>&1; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+      - name: Provision twice and verify real indexes
+        run: |
+          docker cp scripts/chatbot-usage-index.js ttl-mongodb:/tmp/chatbot-usage-index.js
+          docker exec ttl-mongodb mongosh mongodb://localhost:27017/osms_ttl_smoke --quiet --eval 'db.chatbotusages.createIndex({windowStart:1})'
+          for mode in apply apply verify; do
+            docker exec -e OSMS_TARGET_DATABASE=osms_ttl_smoke -e OSMS_CHATBOT_INDEX_MODE="$mode" ttl-mongodb mongosh mongodb://localhost:27017/osms_ttl_smoke --quiet --file /tmp/chatbot-usage-index.js
+          done
+          docker exec ttl-mongodb mongosh mongodb://localhost:27017/osms_ttl_smoke --quiet --eval 'if (!db.chatbotusages.getIndexes().some(i => i.key.windowStart === 1)) quit(1)'
+      - name: Verify physical TTL cleanup with a synthetic record
+        timeout-minutes: 4
+        run: docker exec -e OSMS_TARGET_DATABASE=osms_ttl_smoke -e OSMS_CHATBOT_INDEX_MODE=smoke ttl-mongodb mongosh mongodb://localhost:27017/osms_ttl_smoke --quiet --file /tmp/chatbot-usage-index.js
+      - name: Reject a mismatched deployment target
+        run: |
+          if docker exec -e OSMS_TARGET_DATABASE=wrong -e OSMS_CHATBOT_INDEX_MODE=apply ttl-mongodb mongosh mongodb://localhost:27017/osms_ttl_smoke --quiet --file /tmp/chatbot-usage-index.js; then
+            echo 'Mismatched database unexpectedly accepted'
+            exit 1
+          fi
+      - name: Clean up isolated MongoDB
+        if: always()
+        run: docker rm -f ttl-mongodb
