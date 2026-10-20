@@ -2,6 +2,21 @@
 
 Infrastructure, Docker, CI/CD, and deployment configurations for the Optical Shop Management System (OSMS).
 
+## Secure staging environment baseline
+
+Infra issue #4 defines a non-production staging boundary for UAT, integration,
+end-to-end, security, smoke testing and controlled demonstrations. The approved
+targets are a Vercel staging frontend, an AWS App Runner staging backend, Amazon
+ECR for backend images and a dedicated MongoDB Atlas staging database, connected
+only through HTTPS and isolated from development and production resources.
+
+See [the staging architecture and operations runbook](docs/staging-environment.md)
+for ownership, configuration, provider-safety, data, health, troubleshooting and
+evidence requirements. This baseline documents the contract; infra issue #9 owns
+backend deployment automation, while infra issue #7 owns the existing chatbot
+TTL readiness gate. Documentation and passing CI alone do not prove that any
+cloud resource has been provisioned or that a staging deployment is complete.
+
 ## Chatbot usage TTL deployment gate
 
 Before backend startup, Compose runs the one-shot `chatbot-usage-index` service.
