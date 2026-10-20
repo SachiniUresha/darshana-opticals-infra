@@ -112,7 +112,8 @@ than long-lived AWS access keys in application configuration.
 ## 5. Deployment configuration contract
 
 The values in this section are names and rules, not a deployable environment
-template. Phase 2 owns any future staging example file.
+template. The non-deployable staging configuration example is provided in
+`environments/staging.env.example` as part of this baseline.
 
 ### Public and non-secret configuration
 
