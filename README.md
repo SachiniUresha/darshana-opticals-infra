@@ -1,25 +1,45 @@
-# Infrastructure & Local Development - OSMS
+# Infrastructure & Environments - OSMS
 
 Infrastructure, Docker, CI/CD, and deployment configurations for the Optical Shop Management System (OSMS).
 
-## Secure staging environment baseline
+---
 
-Infra issue #4 defines a non-production staging boundary for UAT, integration,
-end-to-end, security, smoke testing and controlled demonstrations. The approved
-targets are a Vercel staging frontend, an AWS App Runner staging backend, Amazon
-ECR for backend images and a dedicated MongoDB Atlas staging database, connected
-only through HTTPS and isolated from development and production resources.
+## 🌐 Environments Overview
 
-See [the staging architecture and operations runbook](docs/staging-environment.md)
-for ownership, configuration, provider-safety, data, health, troubleshooting and
-evidence requirements. This baseline documents the contract; infra issue #9 owns
-backend deployment automation, while infra issue #7 owns the existing chatbot
-TTL readiness gate. Documentation and passing CI alone do not prove that any
-cloud resource has been provisioned or that a staging deployment is complete.
+OSMS maintains strictly separated environments across three tiers:
 
-## Chatbot usage TTL deployment gate
+| Environment | Purpose | Frontend Target | Backend Target | Database Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **Development** | Local feature implementation & testing | Local Vite (`localhost:5173`) | Docker Compose (`localhost:5000`) | Local MongoDB (`osms-dev` replica set) |
+| **Staging** | UAT, E2E validation & academic evaluation | Vercel (Dedicated Staging Context) | AWS App Runner (`osms-backend-staging`) | MongoDB Atlas (`osms-staging` replica set) |
+| **Production** | Live operational optical store system | Vercel (Production Domain) | AWS App Runner (Production Service) | MongoDB Atlas (`osms-prod` cluster) |
 
-Before backend startup, Compose runs the one-shot `chatbot-usage-index` service.
+For comprehensive architecture details, security guardrails, configuration contracts, and provisioning runbooks, see:
+- 📖 [Staging Environment Baseline Specification](docs/staging-environment.md)
+- 🛠️ [Staging Provisioning Runbook & Secrets Checklist](docs/staging-setup-runbook.md)
+- ⚙️ [Staging Environment Configuration Example](environments/staging.env.example)
+
+---
+
+## 🧪 Secure Staging Environment Baseline (Issue #4)
+
+Infra issue #4 defines an authoritative, non-production staging boundary for UAT, integration, end-to-end, security, smoke testing, and controlled university evaluation.
+
+The approved staging targets and boundaries are:
+* **Staging Frontend:** Deployed on **Vercel** under a dedicated staging/preview deployment context linked to `develop`. Communicates over HTTPS with the backend using the `VITE_API_BASE_URL` contract.
+* **Staging Backend:** Containerized Node.js/Express service running on **AWS App Runner** (`osms-backend-staging`), pulling container images built from `docker/backend/Dockerfile` and stored in **Amazon ECR** (`osms-backend:staging-*`).
+* **Staging Database:** Dedicated **MongoDB Atlas** database (`osms-staging`) with replica set transaction support. Strictly isolated from `osms-dev` and `osms-prod`. Real customer, patient, and financial data is strictly prohibited.
+* **Security & Auth:** Production-grade JWT validation, RBAC with canonical role coverage, strict CORS whitelisting of the Vercel staging origin, and safe error masking.
+* **Sandbox Integrations:** External payment providers and notification channels operate exclusively in non-production test/sandbox mode (zero real charges, zero customer notifications).
+* **Configuration:** Staging contracts and required platform variables are defined in [`environments/staging.env.example`](environments/staging.env.example).
+
+> **Note on Deployment CI/CD Workflows:** This baseline documents the contract and architecture. Automated GitHub Actions staging deployment workflows are implemented through subsequent Sprint 3 issues (Backend Deploy: #9, Frontend Deploy: #10). Documentation and passing CI alone do not constitute evidence that any cloud resource has been provisioned.
+
+---
+
+## 🔒 Chatbot Usage TTL Deployment Gate
+
+Before backend startup, Compose (locally) and deployment pipelines run the one-shot `chatbot-usage-index` service/script.
 It provisions/verifies the `chatbotusages` single-field `{ expiresAt: 1 }` index
 with `expireAfterSeconds: 0` and checks the unique Customer `_id` key. Backend
 startup depends on successful completion. This is independent of Mongoose
@@ -31,6 +51,8 @@ Follow [the deployment runbook](docs/chatbot-usage-ttl.md) for managed staging a
 production, least-privilege index provisioning, verification evidence, synthetic
 TTL smoke tests and administrative Customer deletion. The scripts and CI do not
 constitute evidence that a production index has been provisioned.
+
+---
 
 ## 🚀 Local Development Setup (Docker Compose)
 
@@ -89,12 +111,29 @@ This repository provides containerized local development configurations for both
 
 ```
 infra/
+├── .github/
+│   └── workflows/
+│       ├── chatbot-ttl.yml
+│       └── staging-baseline.yml
 ├── docker/
 │   ├── backend/
 │   │   └── Dockerfile
 │   └── frontend/
 │       └── Dockerfile
+├── docs/
+│   ├── chatbot-usage-ttl.md
+│   ├── staging-environment.md
+│   └── staging-setup-runbook.md
+├── environments/
+│   └── staging.env.example
+├── scripts/
+│   └── chatbot-usage-index.js
+├── tests/
+│   ├── helpers/
+│   ├── chatbot-usage-index.test.cjs
+│   └── staging-baseline.test.cjs
 ├── docker-compose.yml
 ├── .env.example
+├── .gitignore
 └── README.md
 ```
