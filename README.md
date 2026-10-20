@@ -31,7 +31,7 @@ The approved staging targets and boundaries are:
 * **Staging Database:** Dedicated **MongoDB Atlas** database (`osms-staging`) with replica set transaction support. Strictly isolated from `osms-dev` and `osms-prod`. Real customer, patient, and financial data is strictly prohibited.
 * **Security & Auth:** Production-grade JWT validation, RBAC with canonical role coverage, strict CORS whitelisting of the Vercel staging origin, and safe error masking.
 * **Sandbox Integrations:** External payment providers and notification channels operate exclusively in non-production test/sandbox mode (zero real charges, zero customer notifications).
-* **Configuration:** Staging contracts and required platform variables are defined in [`environments/staging.env.example`](environments/staging.env.example) and [`.env.staging.example`](.env.staging.example).
+* **Configuration:** Staging contracts and required platform variables are defined in [`environments/staging.env.example`](environments/staging.env.example).
 
 > **Note on Deployment CI/CD Workflows:** This baseline documents the contract and architecture. Automated GitHub Actions staging deployment workflows are implemented through subsequent Sprint 3 issues (Backend Deploy: #9, Frontend Deploy: #10). Documentation and passing CI alone do not constitute evidence that any cloud resource has been provisioned.
 
@@ -134,7 +134,6 @@ infra/
 │   └── staging-baseline.test.cjs
 ├── docker-compose.yml
 ├── .env.example
-├── .env.staging.example
 ├── .gitignore
 └── README.md
 ```
