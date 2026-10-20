@@ -7,7 +7,7 @@ on:
 
 jobs:
   chatbot-ttl:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,6 +26,14 @@ jobs:
             fi
             sleep 2
           done
+          echo 'MongoDB container status:'
+          docker ps -a --filter 'name=^/ttl-mongodb$' --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' || true
+          echo 'MongoDB container state:'
+          docker inspect --format 'status={{.State.Status}} running={{.State.Running}} exitCode={{.State.ExitCode}} error={{.State.Error}}' ttl-mongodb || true
+          echo 'Last 80 MongoDB startup log lines:'
+          docker logs --tail 80 ttl-mongodb 2>&1 || true
+          echo 'Visible mongosh ping result:'
+          docker exec ttl-mongodb mongosh --eval 'db.adminCommand({ping:1})' || true
           exit 1
       - name: Provision twice and verify real indexes
         run: |

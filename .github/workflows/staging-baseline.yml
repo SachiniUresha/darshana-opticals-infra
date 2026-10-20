@@ -1,0 +1,37 @@
+name: Staging baseline checks
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - environments/staging.env.example
+      - tests/staging-baseline.test.cjs
+      - .github/workflows/staging-baseline.yml
+      - .env.example
+      - docs/staging-environment.md
+      - docs/chatbot-usage-ttl.md
+      - scripts/chatbot-usage-index.js
+  pull_request:
+    branches: [develop]
+    paths:
+      - environments/staging.env.example
+      - tests/staging-baseline.test.cjs
+      - .github/workflows/staging-baseline.yml
+      - .env.example
+      - docs/staging-environment.md
+      - docs/chatbot-usage-ttl.md
+      - scripts/chatbot-usage-index.js
+
+permissions:
+  contents: read
+
+jobs:
+  staging-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Validate staging configuration contract
+        run: node --test tests/staging-baseline.test.cjs

@@ -1,205 +1,437 @@
-# OSMS Staging Environment Baseline Specification
+# Secure staging environment baseline (infra #4)
 
-## 1. Overview & Purpose
+## 1. Purpose and scope
 
-This document defines the authoritative architecture, boundary contracts, security constraints, and operational baseline for the Optical Shop Management System (**OSMS**) **Staging Environment** within the `infra` repository.
+The OSMS staging environment is a non-production environment for integration,
+end-to-end, security, user-acceptance and smoke testing, and for controlled
+university demonstrations. It must exercise production-like security controls
+without using production resources or real production data.
 
-The staging environment provides a secure, reproducible, and production-like target where completed Sprint 2 functionality can be deployed, integrated, and validated safely through end-to-end, security, UAT, and academic project evaluation without exposing or relying on real production data or compromising production stability.
+This document defines the staging architecture, configuration and operating
+contract. It does not prove that any cloud resource has been created or that a
+deployment has completed.
 
----
+The following work remains separate:
 
-## 2. Environment Isolation Matrix
+- Infra issue [#9](https://github.com/darshana-opticals-osms/infra/issues/9)
+  owns the backend image/deployment workflow and AWS App Runner rollout.
+- Frontend deployment automation is not part of infra #4.
+- Production deployment and production DNS migration are not part of infra #4.
 
-OSMS maintains strict logical and physical boundaries across three operational tiers:
+## 2. Approved architecture
 
-| Attribute | Development (Local / CI) | Staging (Pre-Production / UAT) | Production (Live) |
-| :--- | :--- | :--- | :--- |
-| **Primary Audience** | Feature developers, unit/integration CI | QA engineers, UAT testers, academic evaluators | Real customers, optical staff, store management |
-| **Frontend Platform** | Local Vite Dev Server (`localhost:5173`) | Vercel (Dedicated Staging Context / Preview) | Vercel (Production Domain) |
-| **Backend Platform** | Local Docker Compose (`localhost:5000`) | AWS App Runner (Staging Container Service) | AWS App Runner (Production Service) |
-| **Container Registry** | Local Docker Daemon / GHCR cache | Amazon ECR (`osms-backend:staging-*`) | Amazon ECR (`osms-backend:prod-*` / semver) |
-| **Database** | Local MongoDB container (`osms-dev` replica set) | Dedicated MongoDB Atlas Cluster/DB (`osms-staging`) | Dedicated MongoDB Atlas Cluster/DB (`osms-prod`) |
-| **Data Nature** | Ephemeral dev seed data | Synthetic / anonymized non-production UAT seed data | Real patient, prescription, and financial data |
-| **Payment Mode** | Mock / Local bypass | Gateway Sandbox / Test Mode (Zero real currency) | Gateway Live Mode |
-| **Notifications** | Console log / Local dummy sink | Whitelisted test recipients / Mock sink | Live Customer SMS / Email |
-| **Chatbot Provider** | Test / Mock API credentials | Staging API key (rate-limited / sandbox quota) | Live Production API key |
-| **Security Controls** | Dev JWT, relaxed local CORS | Production-grade JWT, strict HTTPS, staging CORS | Production JWT, strict HTTPS, production CORS |
-| **Error Handling** | Verbose dev traces permitted locally | Production-like sanitized responses (no traces) | Strict sanitized responses (no traces) |
+The approved staging targets are:
 
-> **Constraint:** Staging configuration must never silently fall back to, connect to, or share credentials with the production environment (AC1, AC8, AC10, AC11).
+| Concern | Staging target | Boundary |
+| --- | --- | --- |
+| Frontend | Dedicated Vercel staging or preview target | Must not use the live production domain or production-only secrets. |
+| Backend | Dedicated AWS App Runner staging service | Runs the Dockerized Node/Express backend; deployment automation belongs to infra #9. |
+| Image registry | Dedicated Amazon ECR repository or staging-scoped repository path | Store backend images under immutable commit-based tags. Do not store registry credentials in Git. |
+| Database | Dedicated MongoDB Atlas staging database on a replica set or sharded cluster | Must support the transactions used by checkout and must not share a database with development or production. |
+| CI | Existing GitHub Actions checks and a future approved deployment workflow | Passing CI is not deployment evidence. |
 
----
+The current Dockerfiles and Docker Compose configuration remain local-development
+foundations, not evidence of deployable staging artifacts. In particular, the
+current backend Dockerfile starts `npm run dev`. Infra #9 must verify and review
+the production-style image start command and App Runner behavior; infra #4 does
+not change that Dockerfile or make a staging-readiness claim for it.
 
-## 3. Architecture & Deployment Targets
+The intended request and artifact flow is:
 
-```
-  ┌─────────────────────────────────────────────────────────┐
-  │                      UAT / QA User                      │
-  └────────────────────────────┬────────────────────────────┘
-                               │ HTTPS (TLS 1.2+)
-                               ▼
-  ┌─────────────────────────────────────────────────────────┐
-  │              Vercel Staging Frontend                    │
-  │     (e.g., https://staging.osms.darshanaopticals.lk     │
-  │      or https://osms-frontend-staging.vercel.app)       │
-  └────────────────────────────┬────────────────────────────┘
-                               │ HTTPS / REST API
-                               ▼
-  ┌─────────────────────────────────────────────────────────┐
-  │              AWS App Runner Staging Backend             │
-  │          (Container image deployed from ECR)            │
-  └──────────────┬──────────────────────────┬───────────────┘
-                 │                          │
-                 ▼                          ▼
-  ┌─────────────────────────┐   ┌───────────────────────────┐
-  │  MongoDB Atlas Staging  │   │ Third-Party Sandbox APIs  │
-  │     (`osms-staging`)    │   │ • Payment Gateway Sandbox │
-  │  Multi-doc transactions │   │ • Test SMS/Email Sink     │
-  │  TTL Index Provisioning │   │ • Staging Chatbot Keys    │
-  └─────────────────────────┘   └───────────────────────────┘
+```text
+GitHub source and CI
+        |
+        +-- backend image --> Amazon ECR --> AWS App Runner staging service
+        |                                           |
+        |                                           +--> MongoDB Atlas staging
+        |                                           +--> approved sandbox providers
+        |
+        +-- frontend build --> Vercel staging target
+                                  |
+                                  +-- HTTPS --> App Runner staging API
 ```
 
-### 3.1 Frontend Staging Target (Vercel)
-* **Hosting Platform:** Vercel.
-* **Target Context:** Dedicated Staging branch/preview deployment linked to the `develop` release branch.
-* **Domain / URL:** Dedicated staging URL (e.g., `https://osms-frontend-staging.vercel.app` or subdomain `https://staging.osms.darshanaopticals.lk`). The live production domain must never be targeted by staging tests (AC3).
-* **Protocol:** Strictly HTTPS (AC16).
-* **Build Injections:** Injects `VITE_API_BASE_URL` pointing to the AWS App Runner staging backend endpoint at build time. Hardcoded `localhost` references are strictly disallowed (AC7).
+All browser-to-frontend and frontend-to-backend traffic must use HTTPS. Provider
+callbacks must use approved staging HTTPS endpoints. Actual hosted URLs must be
+recorded in the controlled deployment inventory after provisioning; this
+repository does not invent or reserve them.
 
-### 3.2 Backend Staging Target (AWS App Runner)
-* **Hosting Platform:** AWS App Runner.
-* **Runtime:** Fully managed container runtime executing the Dockerized Node.js/Express backend built from `infra/docker/backend/Dockerfile` (AC4, AC6).
-* **Service Naming:** `osms-backend-staging` (AC15).
-* **Scaling / Capacity:** Configured with baseline resources appropriate for UAT (e.g., 1 vCPU, 2 GB RAM, min 1 instance, max 2 instances).
-* **Protocol:** HTTPS terminated at App Runner managed load balancer (AC16).
+## 3. Environment isolation and naming
 
-### 3.3 Container Registry Boundary (Amazon ECR)
-* **Registry Service:** Amazon Elastic Container Registry (ECR) (AC5).
-* **Repository Name:** `osms-backend` (or dedicated staging repository `osms-backend-staging` per AWS account organization).
-* **Image Tagging Convention:**
-  - Immutable SHA tags: `staging-<commit-sha>` (e.g., `staging-a1b2c3d`)
-  - Mutable pointer: `staging-latest`
-* **Security:** ECR authentication performed via AWS IAM OpenID Connect (OIDC) or least-privilege IAM deployment roles. Registry credentials are never stored in source code (AC5).
+Development, staging and production are independent security and data
+boundaries. They must use distinct:
 
-### 3.4 Staging Database (MongoDB Atlas)
-* **Provider:** MongoDB Atlas (M10+ or shared staging tier with replica set enabled) (AC8).
-* **Database Name:** `osms-staging` (AC8, AC10, AC11).
-* **Feature Requirement:** Replica set or sharded cluster configuration is mandatory to support multi-document ACID transactions required by checkout and order workflows.
-* **TTL & Index Provisioning:** Before traffic routing, the database must satisfy index requirements including the `chatbotusages` TTL gate (`scripts/chatbot-usage-index.js`, reference: [chatbot-usage-ttl.md](chatbot-usage-ttl.md)).
+- Vercel targets and public URLs;
+- App Runner services and service roles;
+- ECR image references or repository paths;
+- Atlas databases, database users and connection strings;
+- JWT secrets and external-provider credentials;
+- payment callback URLs and notification recipients;
+- test data, accounts, logs and deployment evidence.
 
----
+Staging must never point to a development or production database, production
+frontend/backend domain, live payment account, production notification list or
+production chatbot credentials. Before each rollout, the operator must compare
+the selected resource names with the environment inventory and stop if any
+production identifier is present.
 
-## 4. Network, Security & API Contracts
+Use `staging` consistently in human-readable labels and resource names. Where a
+provider permits these forms, use:
 
-### 4.1 HTTPS & TLS Requirement
-All staging ingress and egress traffic between testers, Vercel frontend, AWS App Runner backend, MongoDB Atlas, and external providers must be encrypted via HTTPS/TLS 1.2 or higher. Plain HTTP is prohibited (AC16).
+| Resource | Naming convention |
+| --- | --- |
+| GitHub environment | `staging` |
+| AWS/ECR/App Runner resources | `osms-staging-<component>` |
+| Atlas database | `osms-staging` |
+| Vercel project/alias label | `osms-staging-<component>` |
+| Immutable backend image tag | Approved Git commit SHA |
 
-### 4.2 Frontend / Backend URL Contract
-* The frontend interacts with backend endpoints prefixed with `/api`.
-* Frontend environment variable contract:
-  ```env
-  VITE_API_BASE_URL=https://<app-runner-staging-subdomain>.awsapprunner.com/api
-  ```
-* No local development addresses (`localhost`, `127.0.0.1`) may be present in staging client bundles (AC7).
+Provider naming constraints may require punctuation changes, but the `osms` and
+`staging` identifiers must remain unambiguous. Production aliases such as
+`latest`, live domains and unqualified mutable image references are not valid
+staging deployment evidence.
 
-### 4.3 Staging CORS Origin Contract
-The staging backend must explicitly whitelist the designated staging frontend origin:
-```env
-CORS_ORIGIN=https://osms-frontend-staging.vercel.app
+## 4. Resource ownership
+
+Roles below describe responsibilities, not named individuals.
+
+| Role | Responsibility |
+| --- | --- |
+| Vercel frontend owner | Creates the dedicated staging target, configures build variables and HTTPS, and records the resulting staging origin. |
+| AWS platform owner | Owns staging IAM, ECR and App Runner resources, image access, service configuration and operational logs. |
+| MongoDB Atlas operator | Creates the isolated staging database and least-privilege users, verifies transaction support, and controls network access. |
+| GitHub environment administrator | Protects the `staging` environment and manages environment-scoped secrets and approvals. |
+| Payment provider owner | Creates and verifies PayHere sandbox credentials and staging callback registrations. |
+| Media/chatbot/notification provider owners | Maintain staging-separated configuration, quotas, recipients and access. |
+| QA reviewer | Confirms synthetic data, canonical role coverage and redacted validation evidence before acceptance. |
+
+No operator should copy a credential into an issue, pull request, build log,
+README or evidence attachment. AWS services should use scoped IAM roles rather
+than long-lived AWS access keys in application configuration.
+
+## 5. Deployment configuration contract
+
+The values in this section are names and rules, not a deployable environment
+template. The non-deployable staging configuration example is provided in
+`environments/staging.env.example` as part of this baseline.
+
+### Public and non-secret configuration
+
+| Name | Consumer | Staging rule |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | Frontend build | Exact approved App Runner/custom staging HTTPS API base, including `/api`; never localhost or production. |
+| `NODE_ENV` | Backend | Exactly `production`; see the runtime-mode section. |
+| `PORT` | Backend/App Runner | Use the port supplied/configured for the App Runner service and container. |
+| `JWT_EXPIRES_IN` | Backend | Approved token lifetime; this is not the signing secret. |
+| `FRONTEND_ORIGIN` | Backend CORS | Exact approved Vercel staging origin. No wildcard, localhost or production origin. |
+| `FRONTEND_URL` | Backend-generated links | Exact approved Vercel staging origin. |
+| `RATE_LIMIT_WINDOW_MS`, `RATE_LIMIT_MAX` | Backend | Preserve approved rate limiting. |
+| `AUTH_RATE_LIMIT_WINDOW_MS`, `AUTH_RATE_LIMIT_MAX` | Backend | Preserve the stricter authentication limit. |
+| `REQUEST_BODY_LIMIT` | Backend | Preserve the approved request-body limit. |
+| `CHATBOT_RATE_LIMIT_WINDOW_MS`, `CHATBOT_RATE_LIMIT_MAX`, `CHATBOT_TIMEOUT_MS` | Backend | Preserve bounded chatbot use and provider timeout. |
+| `GEMINI_MODEL` | Backend | Approved staging model identifier. |
+| `PAYMENT_CURRENCY` | Backend | `LKR`. |
+| `PAYHERE_MODE` | Backend | Exactly `sandbox`. |
+| `PAYHERE_RETURN_URL`, `PAYHERE_CANCEL_URL` | Backend | Approved Vercel staging HTTPS routes. |
+| `PAYHERE_NOTIFY_URL` | Backend/provider | Approved staging backend HTTPS callback route. |
+| `PAYHERE_NOTIFY_RATE_LIMIT_WINDOW_MS`, `PAYHERE_NOTIFY_RATE_LIMIT_MAX`, `PAYHERE_RETRIEVAL_TIMEOUT_MS` | Backend | Preserve bounded callback and retrieval behavior. |
+| `SMTP_PORT`, `SMTP_SECURE`, `EMAIL_FROM`, `SES_FROM_EMAIL` | Backend | Configure only after notification safety approval; sender identities must be non-production or approved for staging. |
+| `TRACKING_PORTAL_BASE_URL` | Backend | Exact approved Vercel staging origin. |
+| `ONLINE_FULFILLMENT_BRANCH_CODE` | Backend | Controlled fictional/staging branch identifier approved by QA. |
+| `CLOUDINARY_CLOUD_NAME` | Backend | Staging-separated Cloudinary account/cloud identifier. |
+| `OSMS_TARGET_DATABASE` | TTL job | Exact Atlas staging database selected by `MONGODB_URI`; see the infra #7 runbook. |
+| `OSMS_CHATBOT_INDEX_MODE` | TTL job | Explicit `apply`, `verify` or isolated `smoke` mode as required by the infra #7 runbook. |
+
+`VITE_API_BASE_URL` and `FRONTEND_ORIGIN` are complementary and must be reviewed
+together: the first tells the browser where to send API requests, and the second
+tells the backend which exact browser origin may make credentialed cross-origin
+requests. Their approved values must be exact HTTPS origins recorded by the
+operators. Wildcards and guessed hosted URLs are prohibited.
+
+The backend selects its database from `MONGODB_URI`. `MONGODB_DATABASE` is an
+existing local Infra/Compose input that is passed to the one-shot index gate as
+`OSMS_TARGET_DATABASE`; a managed staging index job must set
+`OSMS_TARGET_DATABASE` explicitly to the same database selected by its secret
+`MONGODB_URI`. None of these names authorizes sharing a database across
+environments.
+
+### Deployment secrets
+
+| Name | Purpose and storage rule |
+| --- | --- |
+| `MONGODB_URI` | Atlas staging connection string; store in App Runner/approved secret management and inject separately into the TTL job. Never log it. |
+| `JWT_SECRET` | Staging-only signing secret generated with approved entropy; never reuse development or production values. |
+| `GEMINI_API_KEY` | Staging-specific chatbot provider key with controlled quota. |
+| `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Credentials for the staging-separated media account/configuration. |
+| `PAYHERE_MERCHANT_ID`, `PAYHERE_MERCHANT_SECRET` | PayHere sandbox credentials only. |
+| `PAYHERE_API_APP_ID`, `PAYHERE_API_APP_SECRET` | Optional read-only retrieval API credentials for the same sandbox account. |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` | Keep absent until a controlled staging notification provider and recipient policy are approved. Treat all connection details as restricted. |
+
+GitHub Actions, Vercel and AWS/App Runner must receive only the secrets they
+consume. Atlas and provider administration credentials must remain with their
+operators and must not become application runtime secrets. The runtime database
+user must not be granted index-management privileges solely for deployment.
+
+## 6. Staging runtime mode
+
+The backend configuration accepts only `development`, `test` and `production`.
+Staging must therefore run with:
+
+```text
+NODE_ENV=production
+PAYHERE_MODE=sandbox
 ```
-* Unrestricted wildcard (`*`) CORS is strictly forbidden with credentials enabled (AC18).
-* Production domains and local development origins must not be mingled into staging CORS rules unless explicitly required for transitional verification (AC18).
 
-### 4.4 Authentication, RBAC & Security Middleware
-* **Authentication:** Full JWT signing and validation remains enabled using a dedicated staging secret (`JWT_SECRET`). Token expiry (`JWT_EXPIRES_IN`) mirrors production defaults (AC17).
-* **Role-Based Access Control (RBAC):** All route-level authorization guards remain fully active. Canonical roles (`Customer`, `System Admin`, `Inventory Manager`, `Branch Manager`, `Optometrist`, `Management`, `Cashier`) must be exercised without structural deviations (AC17, AC38).
-* **No Security Bypasses:** No bypass switches, dummy auth headers, or hardcoded admin bypass tokens are permitted in staging (AC19).
-* **Safe Error Behaviour:** Server error responses must return standard JSON schemas without exposing database internal errors, query strings, or runtime stack traces (AC20).
+`production` selects production-like Node/Express behavior, including safe error
+responses. It does not classify the deployment as the live production
+environment. Staging classification comes from the dedicated Vercel, AWS, Atlas,
+GitHub and provider resource boundary described here.
 
----
+Do not set `NODE_ENV=staging`, weaken backend validation or change application
+business behavior for this baseline. Because `NODE_ENV=production` permits the
+backend's live PayHere mode, the staging configuration and deployment review
+must explicitly enforce `PAYHERE_MODE=sandbox`.
 
-## 5. External Integrations Staging Boundary
+## 7. Security baseline
 
-### 5.1 Payment Gateway Sandbox Boundary
-* Staging operates strictly against the payment gateway's non-production sandbox environment (e.g., PayHere Sandbox / Stripe Test Mode) (AC22).
-* Staging uses dedicated sandbox merchant credentials and test card numbers. Real customer charges must never be incurred (AC21, AC22).
+- JWT authentication and existing authorization middleware remain enabled.
+- Preserve the canonical roles `SYSTEM_ADMIN`, `BRANCH_MANAGER`, `OPTOMETRIST`,
+  `BRANCH_ASSISTANT` and `CUSTOMER`; do not introduce aliases or retired roles.
+- Configure `FRONTEND_ORIGIN` to the one exact approved HTTPS frontend origin,
+  or an explicitly reviewed comma-separated set if Vercel requires more than one
+  stable staging origin. Never use wildcard CORS.
+- Do not enable debug authentication, mock authorization, test-mode middleware
+  bypasses or development error output.
+- Store secrets only in the approved GitHub/platform secret mechanisms. Use
+  least-privilege access and environment-scoped approvals.
+- Use synthetic, fictional or approved anonymized data only. Real Customer,
+  Patient, Prescription, Payment or Sales records are prohibited.
+- Do not expose credentials or sensitive data in health responses, logs, build
+  output, screenshots or issue/PR evidence.
 
-### 5.2 Notification Provider Safety
-* Automated appointment reminders, order confirmations, and password resets in staging must route to controlled test recipient addresses, an internal mail trap (e.g., Mailtrap / AWS SES Sandbox), or an approved safe logging sink (AC23).
-* Real patient or customer phone numbers and email addresses must not receive staging notification dispatches (AC23).
+## 8. Provider safety
 
-### 5.3 Chatbot Provider Staging Boundary
-* The AI chatbot integration must utilize a designated non-production API key or rate-limited staging tier (AC24).
-* Staging conversations and test queries must remain separate from production telemetry and conversation histories.
+### PayHere
 
-### 5.4 Audit Trail Isolation
-* The immutable audit trail functions against the staging database (`osms-staging`). Staging administrative actions, order adjustments, and profile changes must never write to or pollute production audit records (AC25).
+Use PayHere sandbox credentials and sandbox checkout only. Return and cancel URLs
+must resolve to the staging frontend, and the notification URL must resolve to
+the staging backend. Test instruments must not create a real financial charge.
+The payment provider owner must verify the registered callbacks before checkout
+smoke testing.
 
----
+### Cloudinary
 
-## 6. Staging Data Strategy & Test Accounts
+Use a staging-separated account, sub-account or approved environment boundary.
+Do not reuse production write credentials. Only synthetic test images may be
+uploaded, and evidence must not disclose signed requests or credential values.
 
-### 6.1 Zero Production Data Rule
-* Staging must never ingest, clone, or mirror live production database dumps containing real customer identities, clinical records, prescription data, credit card details, or sales data (AC9, AC11).
+### Chatbot
 
-### 6.2 Seed & Mock Data Strategy
-* Staging uses deterministic seed scripts adapted from development baselines (`seed-data`) populated with synthetic, anonymized test fixtures (AC36).
-* Catalog products, frames, lenses, branches, and sample inventory levels are pre-seeded to facilitate realistic UAT user journeys.
+Use a staging-specific `GEMINI_API_KEY`, an approved model and controlled quota.
+Prompts and evidence must use fictional content and must not include Customer
+PII, clinical/payment data, provider payloads, JWTs or conversation transcripts.
+The usage-retention index is a separate readiness prerequisite described below.
 
-### 6.3 Test Account Provisioning & Canonical Role Coverage
-Dedicated test accounts representing each canonical role must be maintained for UAT (AC37, AC38):
+### Notifications
 
-| Role | Test Username / Email Convention | Purpose in Staging / UAT |
-| :--- | :--- | :--- |
-| `Customer` | `uat.customer@osms.local` | Browse catalog, cart, checkout, booking appointments, viewing prescriptions |
-| `System Admin` | `uat.admin@osms.local` | Staff provisioning, role assignment, system settings, audit inspection |
-| `Inventory Manager` | `uat.inventory@osms.local` | Stock updates, reorder threshold alerts, supplier order simulation |
-| `Branch Manager` | `uat.branchmgr@osms.local` | Branch inventory oversight, staff scheduling, branch sales review |
-| `Optometrist` | `uat.optometrist@osms.local` | Consultation logging, clinical prescription issuance, appointment completion |
-| `Management` | `uat.mgmt@osms.local` | Business reporting, KPI dashboards, financial summaries |
-| `Cashier` / `Sales Assistant` | `uat.cashier@osms.local` | Over-the-counter sales, order fulfillment, payment verification |
+Notification delivery is disabled by default until the provider owner approves
+a controlled staging provider, verified sender and controlled non-production
+recipients. Under the required `NODE_ENV=production`, missing SMTP configuration
+does not simulate successful delivery; delivery is expected to fail safely.
 
-> **Note:** Plaintext test passwords must never be stored in this repository or committed documentation (AC37). Test account passwords must be provisioned securely during staging database seeding.
+The existing `STAGING_NOTIFICATION_RECIPIENT` branch depends on
+`NODE_ENV=staging`, which the backend configuration does not accept. Operators
+must not rely on that redirect for safety. Enabling real delivery or changing
+recipient behavior requires separate authorization, backend review and a safety
+verification showing that no message can reach an uncontrolled real customer.
 
----
+## 9. Staging data and accounts
 
-## 7. Health Checks, Observability & Troubleshooting
+Only fictional, generated or explicitly approved anonymized test data may enter
+staging. Copying production data is prohibited unless a separately approved data
+governance process proves that every sensitive and identifying field has been
+removed; no such approval is claimed here.
 
-### 7.1 Backend Health Check Specification
-* **Endpoint:** `GET /api/health` (AC26).
-* **Response Expectation:** HTTP `200 OK` with JSON payload confirming service operational state (e.g., `{ "status": "ok", "service": "osms-backend", "timestamp": "..." }`).
-* **Security Guardrail:** The health check must never output database connection strings, credentials, internal server paths, or environment secrets (AC27).
-* **Deployment Gate:** AWS App Runner uses `/api/health` as its health check path. An unhealthy response or connection timeout blocks deployment progression and triggers container rollback (AC28).
+Staging uses `NODE_ENV=production`, so the backend production-mode safeguard that
+prohibits the development seed routine must remain intact. Do not weaken or
+bypass it. QA and the relevant account administrator must instead use a reviewed,
+non-destructive procedure to create controlled test accounts and synthetic data.
 
-### 7.2 Observability & Log Boundary
-* **Log Ingestion:** Backend stdout/stderr streams are ingested into AWS CloudWatch Logs under the `/aws/apprunner/osms-backend-staging` log group (AC29).
-* **Data Sanitization:** Application loggers must preserve active data redaction masks. Logs must never record passwords, JWT tokens, payment authorization secrets, clinical prescription text, or customer PII (AC30).
+The controlled account inventory must cover these canonical roles where required
+for UAT:
 
-### 7.3 Troubleshooting Staging Failures
-Deployment and operational issues can be diagnosed using the following boundaries (AC31):
+- `SYSTEM_ADMIN`
+- `BRANCH_MANAGER`
+- `OPTOMETRIST`
+- `BRANCH_ASSISTANT`
+- `CUSTOMER`
 
-1. **Backend Startup Failure / Crash:**
-   - Inspect AWS App Runner deployment & application logs in AWS Console or via AWS CLI:
-     ```sh
-     aws logs tail /aws/apprunner/osms-backend-staging/<service-id>/service --follow
-     ```
-   - Verify that `MONGODB_URI` points to a reachable MongoDB Atlas replica set with valid credentials and network access (IP Access List allows AWS NAT/IP ranges).
-   - Verify that the `chatbotusages` TTL index gate completed successfully.
-2. **CORS / Cross-Origin Failures:**
-   - Check browser developer tools console on the staging Vercel site for `Cross-Origin Request Blocked`.
-   - Verify that backend `CORS_ORIGIN` matches the exact protocol and hostname of the Vercel staging deployment (e.g., `https://osms-frontend-staging.vercel.app` without trailing slash).
-3. **Frontend API Connection Failures:**
-   - Verify `VITE_API_BASE_URL` in Vercel project environment settings.
-   - Test backend health directly via browser or curl:
-     ```sh
-     curl -i https://<app-runner-staging-subdomain>.awsapprunner.com/api/health
-     ```
+Record account purpose, owner, role and expiry/rotation status in a restricted
+test-account inventory. Never record passwords, reset tokens, JWTs or real person
+details in this document, GitHub or deployment evidence.
 
----
+Audit records must remain in the dedicated staging database. Testers must verify
+audit behavior using only controlled test identities and must not export audit
+records containing sensitive values into public evidence.
 
-## 8. Deployment Scope Boundary
+## 10. Health, logs and troubleshooting
 
-This document establishes the **Staging Environment Baseline** only (Issue #4 / DDP-076):
-* Automated CI/CD backend deployment workflows to AWS App Runner/ECR belong to **Issue #9 [DDP-082]**.
-* Automated CI/CD frontend deployment workflows to Vercel belong to **Issue #10 [DDP-083]**.
-* No production DNS records, production clusters, or production deployments are modified or executed by this baseline (AC32, AC33, AC34, AC35).
+### Health and readiness
+
+The backend exposes `GET /api/health`, returning only a service status and service
+name. The backend connects to MongoDB before opening its HTTP listener, so an
+initial database connection failure prevents normal startup.
+
+The current health endpoint does not query ongoing database availability. A
+database outage after startup may therefore leave the endpoint returning HTTP
+200. Record this limitation in the App Runner health configuration and incident
+procedure. A new readiness endpoint or business-code change is not part of infra
+#4 and requires separate backend approval.
+
+### Log boundary
+
+App Runner, provider and deployment logs must be accessible only to authorized
+operators. Logs and evidence must not contain:
+
+- passwords, database URIs or cloud/provider credentials;
+- JWTs, password-reset tokens or cryptographic hashes;
+- Customer or staff PII;
+- prescription or other clinical data;
+- payment payloads, merchant secrets or callback hashes;
+- chatbot messages, provider payloads or API keys.
+
+Use UTC timestamps, deployment commit/image tag, environment name, safe error
+codes and non-sensitive resource identifiers for correlation. Apply provider log
+retention and access policies approved for staging.
+
+### Diagnostic procedure
+
+1. **Image/startup failure:** AWS platform owner verifies the immutable ECR image
+   reference, App Runner pull/service role, container start command and configured
+   port. Image work and redeployment remain under infra #9.
+2. **Configuration failure:** AWS or Vercel owner compares required variable names
+   against this contract without printing values. Confirm `NODE_ENV=production`,
+   `PAYHERE_MODE=sandbox` and environment-scoped secret selection.
+3. **Database failure:** Atlas operator verifies the staging database name,
+   network policy, transaction-capable topology and runtime-user permissions.
+   Never paste the connection string into logs or tickets.
+4. **CORS failure:** Vercel and AWS owners compare the browser's exact HTTPS
+   origin with `FRONTEND_ORIGIN` and compare `VITE_API_BASE_URL` with the staging
+   backend API base. Do not temporarily use `*`.
+5. **Health failure:** AWS owner checks App Runner events and safe application
+   startup logs, then confirms the configured `/api/health` path and port.
+6. **Provider failure:** The responsible provider owner verifies environment,
+   account, callback, quota and sandbox mode. Keep the provider disabled if its
+   safety boundary is uncertain.
+7. **TTL/index failure:** Atlas/index operator follows the existing infra #7
+   runbook; a nonzero apply or verification result blocks readiness.
+
+The responsible owner corrects configuration through the relevant platform and
+reruns validation. This baseline defines no automatic rollback. Recovery must
+not switch staging to development or production resources.
+
+## 11. Manual setup procedure
+
+These are controlled preparation steps, not claims of completed provisioning.
+
+1. Approve the staging resource names, AWS region/account boundary, intended
+   origins and the owners listed above. Create the protected GitHub `staging`
+   environment without adding values to source control.
+2. Atlas operator creates or selects a dedicated staging project/cluster and
+   `osms-staging` database on a transaction-capable topology. Create separate
+   least-privilege runtime and index-management users and restrict network access.
+3. AWS owner creates the staging-scoped ECR repository/path and IAM permissions.
+   Use immutable commit-SHA image tags. Building and deploying the backend image
+   is performed only through the separately reviewed infra #9 procedure.
+4. Index operator provisions and verifies the chatbot usage indexes against the
+   exact staging database by following `docs/chatbot-usage-ttl.md`. Do not grant
+   its DDL privileges to the normal application user by default.
+5. Under infra #9, AWS owner configures the App Runner staging service, injects
+   non-secret configuration and approved secrets, and configures `/api/health`.
+6. Vercel owner creates the dedicated staging/preview target, configures
+   `VITE_API_BASE_URL`, enables HTTPS and records the exact frontend origin. AWS
+   owner then sets `FRONTEND_ORIGIN` and `FRONTEND_URL` to that approved origin.
+7. Provider owners configure PayHere sandbox and any approved staging-separated
+   media/chatbot services. Notifications remain disabled until their additional
+   safety approval is recorded.
+8. QA creates controlled fictional accounts/data and performs the verification
+   checklist in order: isolation and secrets, database/TTL, backend health,
+   frontend/API/CORS, authentication/RBAC, providers, audit and logs.
+
+Do not substitute manual console setup screenshots for a future reviewed
+deployment workflow. Do not put console-exported secrets into GitHub evidence.
+
+## 12. Existing chatbot TTL dependency
+
+Infra issue [#7](https://github.com/darshana-opticals-osms/infra/issues/7) already
+provides the chatbot usage index script, tests, CI checks and operational
+[TTL rollout checklist](chatbot-usage-ttl.md). Do not duplicate that logic.
+
+Before the staging backend is declared ready, an authorized index operator must
+run the existing apply and verify procedure against the exact staging database
+with the dedicated index-management credential. The required TTL definition is
+the single-field `{ expiresAt: 1 }` index with `expireAfterSeconds: 0`; logical
+expiry remains a backend responsibility independent of MongoDB's asynchronous
+physical deletion.
+
+Any physical TTL smoke test must use the separate empty database and bounded,
+synthetic procedure required by the existing runbook. A local or CI pass is not
+evidence that the staging index has been provisioned.
+
+## 13. Verification and evidence checklist
+
+The documented contract and completed operational evidence are different. At the
+time this baseline was written, no external resource or deployment was verified.
+
+| Verification | Required redacted evidence | Current status |
+| --- | --- | --- |
+| Development/staging/production separation | Resource inventory showing distinct non-secret names and environments | PENDING / NOT VERIFIED |
+| Vercel staging target and HTTPS | Project/environment name, approved origin and TLS result; no tokens | PENDING / NOT VERIFIED |
+| ECR and immutable image reference | Repository/path, commit-derived tag and image digest; no registry credentials | PENDING / NOT VERIFIED |
+| App Runner staging service | Service/environment name, deployed image digest and revision time | PENDING / NOT VERIFIED |
+| Atlas staging database and transactions | Project/cluster/database identifiers and successful synthetic transaction result; no URI/data | PENDING / NOT VERIFIED |
+| Runtime/index least privilege | Redacted role/permission summary and reviewer approval | PENDING / NOT VERIFIED |
+| Environment configuration and secrets | Variable-name checklist, secret-store locations and reviewer result; never values | PENDING / NOT VERIFIED |
+| HTTPS API and exact CORS | Allowed-origin success and unrelated-origin rejection with sanitized headers | PENDING / NOT VERIFIED |
+| JWT and canonical RBAC | Authentication plus allowed/denied checks for the five controlled roles | PENDING / NOT VERIFIED |
+| Health and failed startup | Sanitized `/api/health` response and evidence that initial DB failure is not healthy | PENDING / NOT VERIFIED |
+| PayHere sandbox | Sandbox mode/account label and staging callback verification; no merchant credentials | PENDING / NOT VERIFIED |
+| Notification safety | Proof delivery is disabled or restricted to approved test recipients/provider | PENDING / NOT VERIFIED |
+| Cloudinary/chatbot separation | Staging account/configuration identifiers and synthetic test results; no keys or prompts | PENDING / NOT VERIFIED |
+| Test data and audit isolation | QA attestation that data/accounts are fictional and audit records remain in staging | PENDING / NOT VERIFIED |
+| Safe logs and diagnostics | Reviewer checklist using sanitized log samples, with no PII or secrets | PENDING / NOT VERIFIED |
+| Chatbot TTL readiness | Redacted apply/verify output and isolated smoke-test result required by the infra #7 runbook | PENDING / NOT VERIFIED |
+
+Evidence must identify the `staging` environment, reviewed commit/image digest,
+UTC verification time, responsible role and outcome. Operators must redact
+credentials, connection strings, authorization headers, Customer records and
+provider payloads. A failed or missing check remains `PENDING / NOT VERIFIED` and
+must not be reported as passed.
+
+## 14. Scope and limitations
+
+This baseline intentionally does not provide:
+
+- a frontend deployment pipeline;
+- App Runner deployment automation or the complete infra #9 rollout;
+- production deployment or production DNS migration;
+- changes to backend/frontend business behavior;
+- changes to Dockerfiles or local Docker Compose;
+- new chatbot TTL scripts, tests or deployment mechanisms;
+- automatic rollback;
+- Terraform, CloudFormation, Pulumi or another new IaC framework.
+
+The exact approved SDS Chapter 7 and SRS non-functional-requirement text was not
+machine-readable in the implementation environment and is **NOT VERIFIED** by
+this document. This baseline follows infra #4's documented SDS/SRS mapping,
+accepted ADRs and verified application configuration; it does not invent missing
+SDS or SRS wording.
+
+Source basis: [infra #4](https://github.com/darshana-opticals-osms/infra/issues/4),
+[ADR-002](https://github.com/darshana-opticals-osms/documents/blob/develop/adr/ADR-002-rbac-role-model.md),
+[ADR-008](https://github.com/darshana-opticals-osms/documents/blob/develop/adr/ADR-008-inventory-image-upload-cloudinary.md),
+[ADR-010](https://github.com/darshana-opticals-osms/documents/blob/develop/adr/ADR-010-ai-chatbot-architecture-and-knowledge-strategy.md),
+[ADR-011](https://github.com/darshana-opticals-osms/documents/blob/develop/adr/ADR-011-secure-payment-gateway-integration.md),
+[ADR-012](https://github.com/darshana-opticals-osms/documents/blob/develop/adr/ADR-012-immutable-audit-trail-architecture.md)
+and
+[ADR-013](https://github.com/darshana-opticals-osms/documents/blob/develop/adr/ADR-013-order-status-notification-policy.md).
