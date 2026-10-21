@@ -17,6 +17,7 @@ OSMS maintains strictly separated environments across three tiers:
 For comprehensive architecture details, security guardrails, configuration contracts, and provisioning runbooks, see:
 - 📖 [Staging Environment Baseline Specification](docs/staging-environment.md)
 - 🛠️ [Staging Provisioning Runbook & Secrets Checklist](docs/staging-setup-runbook.md)
+- 🚀 [Backend Staging Deployment & Rollback Runbook](docs/backend-staging-deployment.md)
 - ⚙️ [Staging Environment Configuration Example](environments/staging.env.example)
 
 ---
