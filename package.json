@@ -1,0 +1,13 @@
+{
+  "name": "darshana-opticals-infra",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Infrastructure and release-quality verification for Darshana Opticals OSMS",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}
