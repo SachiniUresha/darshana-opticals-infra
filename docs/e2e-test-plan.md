@@ -406,3 +406,86 @@ will be introduced under `tests/e2e/`.
 - Local integration preparation: Not started.
 - Staging execution: Blocked pending staging deployment.
 - Actual Pass/Fail evidence: Not yet available.
+
+---
+
+## 10. E2E Automation Boundary
+
+The existing frontend and backend repositories already contain substantial
+component, service, unit, and API integration coverage.
+
+DDP-084 will therefore avoid duplicating lower-level tests in browser
+automation.
+
+### Browser E2E Required
+
+The following workflows require real browser-level verification because their
+purpose is to prove that frontend, backend, authentication state, routing,
+database state, and integrations work together:
+
+| Scenario | Browser E2E Scope |
+| --- | --- |
+| E2E-AUTH-01 | Login, protected navigation, logout and post-logout protection |
+| E2E-PURCHASE-01 | Catalogue, Cart, Checkout, PayHere sandbox, Order History and inventory consistency |
+| E2E-APPOINTMENT-01 | Doctor setup, Doctor Session creation and Customer booking |
+| E2E-PRESCRIPTION-01 | Optometrist prescription entry and Customer history |
+
+### Hybrid / Representative Browser Verification
+
+The following scenarios already have substantial backend integration coverage.
+DDP-084 will execute representative browser cases without duplicating every
+lower-level negative test:
+
+| Scenario | DDP-084 Approach |
+| --- | --- |
+| E2E-PURCHASE-02 | Reuse payment/checkout/inventory integration coverage and add representative staging cancellation/failure verification |
+| E2E-APPOINTMENT-02 | Reuse appointment conflict/cancellation API coverage and add representative staging conflict/cancellation verification |
+| E2E-AUTHZ-01 | Reuse security/RBAC API coverage and add representative protected-route and role-isolation browser checks |
+
+### Existing Coverage Reused
+
+Relevant existing backend integration areas include:
+
+- authentication;
+- Cart and Checkout;
+- payment verification and notification handling;
+- Order lifecycle and reservation;
+- inventory consistency;
+- Doctor and Doctor Session APIs;
+- appointment booking and conflict rules;
+- prescription creation and history;
+- role and branch authorization.
+
+Relevant existing frontend tests include:
+
+- Login and authentication storage;
+- protected and role-specific navigation;
+- Cart and Checkout pages/services;
+- payment entry, return and result pages;
+- appointment booking/history/staff management;
+- Doctor Session management;
+- prescription entry/history;
+- inventory and reporting interfaces.
+
+These tests remain regression evidence, but they do not replace execution of
+the selected integrated browser E2E workflows.
+
+### Browser Framework Decision
+
+Playwright is selected for the critical browser E2E layer because DDP-084
+requires repeatable verification through the real application UI.
+
+The Playwright suite will remain intentionally small and focused on
+release-critical integrated workflows.
+
+Initial planned files:
+
+- `tests/e2e/auth.spec.js`
+- `tests/e2e/purchase.spec.js`
+- `tests/e2e/appointment.spec.js`
+- `tests/e2e/prescription.spec.js`
+
+PayHere sandbox behavior will use the approved external sandbox flow. If a
+provider-controlled step cannot be reliably automated, that step will be
+recorded and executed as a controlled manual staging verification rather than
+bypassing payment verification.
