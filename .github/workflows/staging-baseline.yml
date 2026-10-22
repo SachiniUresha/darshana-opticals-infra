@@ -6,21 +6,29 @@ on:
     paths:
       - environments/staging.env.example
       - tests/staging-baseline.test.cjs
+      - tests/backend-staging-deploy.test.cjs
       - .github/workflows/staging-baseline.yml
+      - .github/workflows/backend-staging-deploy.yml
       - .env.example
       - docs/staging-environment.md
       - docs/chatbot-usage-ttl.md
       - scripts/chatbot-usage-index.js
+      - scripts/deploy-apprunner.cjs
+      - scripts/verify-staging-health.cjs
   pull_request:
     branches: [develop]
     paths:
       - environments/staging.env.example
       - tests/staging-baseline.test.cjs
+      - tests/backend-staging-deploy.test.cjs
       - .github/workflows/staging-baseline.yml
+      - .github/workflows/backend-staging-deploy.yml
       - .env.example
       - docs/staging-environment.md
       - docs/chatbot-usage-ttl.md
       - scripts/chatbot-usage-index.js
+      - scripts/deploy-apprunner.cjs
+      - scripts/verify-staging-health.cjs
 
 permissions:
   contents: read
@@ -33,5 +41,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - name: Validate staging configuration contract
-        run: node --test tests/staging-baseline.test.cjs
+      - name: Validate staging configuration contract and deployment scripts
+        run: |
+          node --test tests/staging-baseline.test.cjs
+          node --test tests/backend-staging-deploy.test.cjs
