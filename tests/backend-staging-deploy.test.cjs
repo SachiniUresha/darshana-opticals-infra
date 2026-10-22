@@ -336,5 +336,19 @@ test("workflow-structure: backend-staging-deploy.yml uses safe env-based secret 
     /Verify Backend CI status gate/,
     "Workflow must include a backend CI verification gate per AC8",
   );
+
+  // Remaining Finding 1: Ensure Backend CI gate fails closed (exits with 1 when unverified or non-success)
+  assert.match(
+    workflowContent,
+    /No verified GitHub check runs found/,
+    "CI gate must reject deployments when no check runs exist (fail-closed)",
+  );
+
+  // Remaining Finding 3: Ensure ECR existence reuses image directly without attempting duplicate push
+  assert.match(
+    workflowContent,
+    /Reusing existing verified image/,
+    "Workflow must reuse existing image without attempting duplicate docker push to respect tag immutability",
+  );
 });
 

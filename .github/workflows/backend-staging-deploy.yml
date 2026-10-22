@@ -85,34 +85,39 @@ jobs:
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "Computed immutable ECR tag: ${TAG} (from commit ${COMMIT_SHA})"
 
-      - name: Verify Backend CI status gate (AC7 / AC8 / Finding 3)
+      - name: Verify Backend CI status gate (AC7 / AC8 / Finding 1)
         env:
           GH_TOKEN: ${{ secrets.BACKEND_REPO_ACCESS_TOKEN || github.token }}
           FULL_SHA: ${{ steps.image-tag.outputs.full_commit_sha }}
         run: |
           echo "Checking CI test verification for backend commit: ${FULL_SHA}..."
-          # Query GitHub Check Runs API for the target commit in darshana-opticals-osms/backend
-          STATUS_JSON=$(gh api "repos/darshana-opticals-osms/backend/commits/${FULL_SHA}/check-runs" 2>/dev/null || echo "{}")
-          TOTAL_COUNT=$(echo "${STATUS_JSON}" | jq -r '.total_count // 0')
           
-          if [ "${TOTAL_COUNT}" -gt 0 ]; then
-            # Verify if there is any failed check run
-            FAILURES=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select(.conclusion != null and .conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')
-            INCOMPLETE=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select(.status != "completed")] | length')
-            
-            if [ "${FAILURES}" -gt 0 ]; then
-              echo "::error::Backend commit ${FULL_SHA} has ${FAILURES} failed CI checks. Aborting deployment per AC8."
-              exit 1
-            fi
-            
-            if [ "${INCOMPLETE}" -gt 0 ]; then
-              echo "::warning::Backend commit ${FULL_SHA} has ${INCOMPLETE} in-progress CI check(s)."
-            else
-              echo "✅ Verified all backend CI check runs passed successfully for commit ${FULL_SHA}."
-            fi
-          else
-            echo "Notice: No GitHub check runs registered yet for commit ${FULL_SHA}. Proceeding with build."
+          # Query GitHub Check Runs API for the target commit in darshana-opticals-osms/backend
+          STATUS_JSON=$(gh api "repos/darshana-opticals-osms/backend/commits/${FULL_SHA}/check-runs" 2>/dev/null)
+          API_STATUS=$?
+          
+          if [ $API_STATUS -ne 0 ] || [ -z "${STATUS_JSON}" ]; then
+            echo "::error::Failed to query GitHub Check Runs API for commit ${FULL_SHA}. Deployment aborted per fail-closed requirement (AC8)."
+            exit 1
           fi
+
+          TOTAL_COUNT=$(echo "${STATUS_JSON}" | jq -r '.total_count // 0')
+          if [ "${TOTAL_COUNT}" -eq 0 ]; then
+            echo "::error::No verified GitHub check runs found for backend commit ${FULL_SHA}. Deployment rejected per AC8 (unverified revisions cannot be deployed)."
+            exit 1
+          fi
+
+          # Require explicit completed status and successful conclusion for backend checks
+          SUCCESS_COUNT=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select(.status == "completed" and (.conclusion == "success" or .conclusion == "neutral" or .conclusion == "skipped"))] | length')
+          NON_SUCCESS_COUNT=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select(.status != "completed" or (.conclusion != "success" and .conclusion != "neutral" and .conclusion != "skipped"))] | length')
+
+          if [ "${NON_SUCCESS_COUNT}" -gt 0 ]; then
+            echo "::error::Backend commit ${FULL_SHA} has ${NON_SUCCESS_COUNT} pending or failed check run(s). Deployment rejected."
+            echo "${STATUS_JSON}" | jq -r '.check_runs[] | "  - \(.name): status=\(.status), conclusion=\(.conclusion)"'
+            exit 1
+          fi
+
+          echo "✅ Verified all ${SUCCESS_COUNT} backend check run(s) are completed and successful for commit ${FULL_SHA}."
 
       - name: Authenticate with AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -125,7 +130,7 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Check ECR image existence and push (Finding 2: Immutability / Rollback support)
+      - name: Check ECR image existence and push (Finding 2 / Finding 3: Tag Immutability & Rollback)
         id: build-push
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -145,14 +150,16 @@ jobs:
             echo "Image ${IMAGE_URI} does not exist in ECR yet."
           fi
 
-          if [ "${IMAGE_EXISTS}" = "true" ] && [ "${FORCE_DEPLOY}" != "true" ]; then
-            echo "Reusing existing verified image ${IMAGE_URI} from ECR (supports fast rollback & redeploy without violating tag immutability)."
+          # AC2 & AC13: ECR Tag Immutability strictly forbids pushing an existing tag.
+          # If the image exists, reuse it directly for App Runner deployment (supporting rollback & fast retries).
+          if [ "${IMAGE_EXISTS}" = "true" ]; then
+            if [ "${FORCE_DEPLOY}" = "true" ]; then
+              echo "Notice: force_deploy requested. Reusing existing immutable image ${IMAGE_URI} from ECR to preserve tag immutability while forcing App Runner service rollout."
+            else
+              echo "Reusing existing verified image ${IMAGE_URI} from ECR."
+            fi
             echo "image_reused=true" >> $GITHUB_OUTPUT
           else
-            if [ "${IMAGE_EXISTS}" = "true" ] && [ "${FORCE_DEPLOY}" = "true" ]; then
-              echo "Warning: Image tag exists and force_deploy is true. ECR tag immutability may reject overwriting tag ${IMAGE_TAG}."
-            fi
-
             echo "Building backend Docker image..."
             docker build \
               --tag "${IMAGE_URI}" \
