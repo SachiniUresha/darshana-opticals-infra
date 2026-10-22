@@ -344,11 +344,11 @@ test("workflow-structure: backend-staging-deploy.yml uses safe env-based secret 
     "CI gate must reject deployments when no check runs exist (fail-closed)",
   );
 
-  // Remaining Finding 3: Ensure ECR existence reuses image directly without attempting duplicate push
+  // Final Re-Review Finding 1: Ensure required 'backend-ci' check run is explicitly verified by name
   assert.match(
     workflowContent,
-    /Reusing existing verified image/,
-    "Workflow must reuse existing image without attempting duplicate docker push to respect tag immutability",
+    /BACKEND_CI_MATCH/,
+    "Workflow must explicitly verify that the required backend-ci check run succeeded",
   );
 });
 

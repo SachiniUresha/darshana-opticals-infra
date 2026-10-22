@@ -117,7 +117,16 @@ jobs:
             exit 1
           fi
 
-          echo "✅ Verified all ${SUCCESS_COUNT} backend check run(s) are completed and successful for commit ${FULL_SHA}."
+          # AC7 / AC8: Explicitly verify that the required 'backend-ci' check exists and succeeded
+          BACKEND_CI_MATCH=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select((.name | test("backend-ci"; "i")) and .status == "completed" and .conclusion == "success")] | length')
+          if [ "${BACKEND_CI_MATCH}" -eq 0 ]; then
+            echo "::error::Required 'backend-ci' check run was not found or has not succeeded for commit ${FULL_SHA}. Deployment rejected per AC8."
+            echo "Available check runs:"
+            echo "${STATUS_JSON}" | jq -r '.check_runs[] | "  - \(.name): status=\(.status), conclusion=\(.conclusion)"'
+            exit 1
+          fi
+
+          echo "✅ Verified required 'backend-ci' check and all ${SUCCESS_COUNT} check run(s) are completed and successful for commit ${FULL_SHA}."
 
       - name: Authenticate with AWS
         uses: aws-actions/configure-aws-credentials@v4
