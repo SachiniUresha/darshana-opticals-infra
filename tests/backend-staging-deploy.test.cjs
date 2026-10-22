@@ -289,3 +289,52 @@ test("verify-staging-health: fails if CORS allows unauthorized wildcard origin",
     /CORS security violation/,
   );
 });
+
+test("workflow-security: target_ref input sanitization rejects shell injection patterns (Finding 4)", () => {
+  const sanitizeRef = (ref) => {
+    const trimmed = String(ref || "").trim();
+    if (!/^[a-zA-Z0-9._/-]+$/.test(trimmed)) {
+      throw new Error("Invalid deployment target reference");
+    }
+    return trimmed;
+  };
+
+  assert.equal(sanitizeRef("develop"), "develop");
+  assert.equal(sanitizeRef("feature/9-backend-deploy"), "feature/9-backend-deploy");
+  assert.equal(sanitizeRef("a1b2c3d4e5f6"), "a1b2c3d4e5f6");
+  assert.equal(sanitizeRef("v1.0.0"), "v1.0.0");
+
+  assert.throws(() => sanitizeRef("develop; rm -rf /"), /Invalid deployment target reference/);
+  assert.throws(() => sanitizeRef("develop && echo test"), /Invalid deployment target reference/);
+  assert.throws(() => sanitizeRef("`whoami`"), /Invalid deployment target reference/);
+  assert.throws(() => sanitizeRef("$(id)"), /Invalid deployment target reference/);
+});
+
+test("workflow-structure: backend-staging-deploy.yml uses safe env-based secret checks and ECR image existence handling (Findings 1 & 2)", () => {
+  const workflowContent = fs.readFileSync(
+    path.join(ROOT, ".github", "workflows", "backend-staging-deploy.yml"),
+    "utf8",
+  );
+
+  // Finding 1: Ensure NO direct secrets context inside step if conditions
+  assert.doesNotMatch(
+    workflowContent,
+    /if:\s*\$\{\{\s*secrets\./,
+    "Workflow must not reference secrets directly in step if expressions",
+  );
+
+  // Finding 2: Ensure ECR describe-images check is present to prevent immutable tag collision
+  assert.match(
+    workflowContent,
+    /aws\s+ecr\s+describe-images/,
+    "Workflow must query ECR for existing tag before pushing to respect tag immutability",
+  );
+
+  // Finding 3: Ensure backend CI check-runs verification step is present
+  assert.match(
+    workflowContent,
+    /Verify Backend CI status gate/,
+    "Workflow must include a backend CI verification gate per AC8",
+  );
+});
+

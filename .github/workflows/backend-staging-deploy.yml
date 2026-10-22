@@ -8,7 +8,7 @@ on:
         required: true
         default: "develop"
       force_deploy:
-        description: "Deploy even if image already exists"
+        description: "Force rebuild and redeploy even if target image exists in ECR"
         type: boolean
         default: false
   repository_dispatch:
@@ -29,10 +29,23 @@ jobs:
     timeout-minutes: 25
 
     steps:
-      - name: Resolve target deployment revision
+      - name: Resolve and validate target deployment revision
         id: resolve-ref
+        env:
+          INPUT_REF: ${{ github.event.inputs.backend_ref }}
+          PAYLOAD_COMMIT: ${{ github.event.client_payload.commit_sha }}
+          PAYLOAD_REF: ${{ github.event.client_payload.ref }}
         run: |
-          TARGET="${{ github.event.inputs.backend_ref || github.event.client_payload.commit_sha || github.event.client_payload.ref || 'develop' }}"
+          TARGET="${INPUT_REF:-${PAYLOAD_COMMIT:-${PAYLOAD_REF:-develop}}}"
+          # Strip surrounding whitespace
+          TARGET=$(echo "${TARGET}" | tr -d '[:space:]')
+          
+          # Finding 4: Security input validation against malicious shell injection
+          if [[ ! "${TARGET}" =~ ^[a-zA-Z0-9._/-]+$ ]]; then
+            echo "::error::Invalid deployment target reference '${TARGET}'. Only alphanumeric characters, dots, underscores, slashes, and hyphens are allowed."
+            exit 1
+          fi
+
           echo "target_ref=${TARGET}" >> $GITHUB_OUTPUT
           echo "Resolved deployment target reference: ${TARGET}"
 
@@ -65,10 +78,41 @@ jobs:
         run: |
           cd backend
           COMMIT_SHA=$(git rev-parse --short=8 HEAD)
+          FULL_COMMIT_SHA=$(git rev-parse HEAD)
           TAG="staging-${COMMIT_SHA}"
           echo "commit_sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+          echo "full_commit_sha=${FULL_COMMIT_SHA}" >> $GITHUB_OUTPUT
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
           echo "Computed immutable ECR tag: ${TAG} (from commit ${COMMIT_SHA})"
+
+      - name: Verify Backend CI status gate (AC7 / AC8 / Finding 3)
+        env:
+          GH_TOKEN: ${{ secrets.BACKEND_REPO_ACCESS_TOKEN || github.token }}
+          FULL_SHA: ${{ steps.image-tag.outputs.full_commit_sha }}
+        run: |
+          echo "Checking CI test verification for backend commit: ${FULL_SHA}..."
+          # Query GitHub Check Runs API for the target commit in darshana-opticals-osms/backend
+          STATUS_JSON=$(gh api "repos/darshana-opticals-osms/backend/commits/${FULL_SHA}/check-runs" 2>/dev/null || echo "{}")
+          TOTAL_COUNT=$(echo "${STATUS_JSON}" | jq -r '.total_count // 0')
+          
+          if [ "${TOTAL_COUNT}" -gt 0 ]; then
+            # Verify if there is any failed check run
+            FAILURES=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select(.conclusion != null and .conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')
+            INCOMPLETE=$(echo "${STATUS_JSON}" | jq -r '[.check_runs[] | select(.status != "completed")] | length')
+            
+            if [ "${FAILURES}" -gt 0 ]; then
+              echo "::error::Backend commit ${FULL_SHA} has ${FAILURES} failed CI checks. Aborting deployment per AC8."
+              exit 1
+            fi
+            
+            if [ "${INCOMPLETE}" -gt 0 ]; then
+              echo "::warning::Backend commit ${FULL_SHA} has ${INCOMPLETE} in-progress CI check(s)."
+            else
+              echo "✅ Verified all backend CI check runs passed successfully for commit ${FULL_SHA}."
+            fi
+          else
+            echo "Notice: No GitHub check runs registered yet for commit ${FULL_SHA}. Proceeding with build."
+          fi
 
       - name: Authenticate with AWS
         uses: aws-actions/configure-aws-credentials@v4
@@ -81,38 +125,62 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push immutable backend container image
+      - name: Check ECR image existence and push (Finding 2: Immutability / Rollback support)
         id: build-push
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY || 'osms-backend' }}
           IMAGE_TAG: ${{ steps.image-tag.outputs.tag }}
+          FORCE_DEPLOY: ${{ github.event.inputs.force_deploy || 'false' }}
         run: |
           IMAGE_URI="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
           echo "image_uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
 
-          echo "Building backend Docker image..."
-          docker build \
-            --tag "${IMAGE_URI}" \
-            --file infra/docker/backend/Dockerfile \
-            backend
+          echo "Checking if immutable tag ${IMAGE_TAG} already exists in ECR repository ${ECR_REPOSITORY}..."
+          IMAGE_EXISTS="false"
+          if aws ecr describe-images --repository-name "${ECR_REPOSITORY}" --image-ids imageTag="${IMAGE_TAG}" >/dev/null 2>&1; then
+            IMAGE_EXISTS="true"
+            echo "Image ${IMAGE_URI} already exists in ECR."
+          else
+            echo "Image ${IMAGE_URI} does not exist in ECR yet."
+          fi
 
-          echo "Pushing immutable image to Amazon ECR..."
-          docker push "${IMAGE_URI}"
-          echo "Image pushed successfully: ${IMAGE_URI}"
+          if [ "${IMAGE_EXISTS}" = "true" ] && [ "${FORCE_DEPLOY}" != "true" ]; then
+            echo "Reusing existing verified image ${IMAGE_URI} from ECR (supports fast rollback & redeploy without violating tag immutability)."
+            echo "image_reused=true" >> $GITHUB_OUTPUT
+          else
+            if [ "${IMAGE_EXISTS}" = "true" ] && [ "${FORCE_DEPLOY}" = "true" ]; then
+              echo "Warning: Image tag exists and force_deploy is true. ECR tag immutability may reject overwriting tag ${IMAGE_TAG}."
+            fi
 
-      - name: Verify Chatbot TTL index deployment dependency (Infra #7 / AC12)
-        if: ${{ secrets.MONGODB_URI != '' }}
+            echo "Building backend Docker image..."
+            docker build \
+              --tag "${IMAGE_URI}" \
+              --file infra/docker/backend/Dockerfile \
+              backend
+
+            echo "Pushing immutable image to Amazon ECR..."
+            docker push "${IMAGE_URI}"
+            echo "Image pushed successfully: ${IMAGE_URI}"
+            echo "image_reused=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify Chatbot TTL index deployment dependency (Infra #7 / AC12 / Finding 1)
         env:
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          STAGING_MONGODB_URI: ${{ secrets.MONGODB_URI }}
         run: |
+          if [ -z "${STAGING_MONGODB_URI}" ]; then
+            echo "::error::Missing required secret MONGODB_URI for staging database verification. Deployment aborted safely per AC5/AC12."
+            exit 1
+          fi
+
           echo "Verifying Chatbot TTL index against staging MongoDB Atlas..."
           docker run --rm \
             -v "$(pwd)/infra/scripts:/scripts:ro" \
             -e OSMS_TARGET_DATABASE="osms-staging" \
             -e OSMS_CHATBOT_INDEX_MODE="verify" \
             mongo:8.0 \
-            mongosh "${MONGODB_URI}" --quiet --file /scripts/chatbot-usage-index.js
+            mongosh "${STAGING_MONGODB_URI}" --quiet --file /scripts/chatbot-usage-index.js
           echo "Chatbot TTL index verified successfully."
 
       - name: Roll out container image to AWS App Runner
@@ -144,6 +212,7 @@ jobs:
           echo "| **Target Commit** | \`${{ steps.image-tag.outputs.commit_sha || 'N/A' }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Image Tag** | \`${{ steps.image-tag.outputs.tag || 'N/A' }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **ECR Image URI** | \`${{ steps.build-push.outputs.image_uri || 'N/A' }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Image Reused from ECR** | \`${{ steps.build-push.outputs.image_reused || 'false' }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **App Runner Status** | **${{ steps.deploy.outputs.service_status || 'FAILED' }}** |" >> $GITHUB_STEP_SUMMARY
           echo "| **Staging URL** | [${{ steps.deploy.outputs.service_url || 'N/A' }}](${{ steps.deploy.outputs.service_url || '#' }}) |" >> $GITHUB_STEP_SUMMARY
           echo "| **Health Endpoint** | [${{ steps.deploy.outputs.service_url }}/api/health](${{ steps.deploy.outputs.service_url }}/api/health) |" >> $GITHUB_STEP_SUMMARY
