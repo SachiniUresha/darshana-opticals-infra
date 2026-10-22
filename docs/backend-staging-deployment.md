@@ -276,8 +276,10 @@ aws logs tail /aws/apprunner/osms-backend-staging/<SERVICE_ID>/application --fol
 
 ## 7. Operational Staging URLs
 
-| Service | Staging URL | Purpose |
+| Service | Staging URL | Purpose / Status |
 | :--- | :--- | :--- |
-| **Backend API** | `https://<apprunner-domain>.awsapprunner.com` | Primary staging REST API |
-| **Health Check** | `https://<apprunner-domain>.awsapprunner.com/api/health` | Automated uptime & health probe |
-| **Frontend UI** | `https://osms-frontend-staging.vercel.app` | Vercel staging web application |
+| **Backend API (Live Operational / ADR-015)** | `https://osms-backend-staging.onrender.com` | Verified live staging REST API |
+| **Health Check (Live Operational)** | `https://osms-backend-staging.onrender.com/api/health` | Automated uptime & health probe (HTTP 200 OK verified) |
+| **Backend API (AWS Target Architecture)** | `https://<apprunner-domain>.awsapprunner.com` | Primary SDS App Runner target endpoint |
+| **Frontend UI (Target - Issue #10)** | `https://osms-frontend-staging.vercel.app` | Vercel staging web application |
+
