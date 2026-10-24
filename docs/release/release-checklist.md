@@ -73,12 +73,12 @@ According to the SENG 34213 System Development Project guideline and the project
 - [ ] Frontend CI run URL and commit SHA recorded.
 
 ### AC7 – Verify Infrastructure and Deployment Configuration
-- [ ] Backend deployed to Render.com Node.js runtime over HTTPS (ADR-015).
-- [ ] Frontend deployed to Vercel connected to Render backend.
-- [ ] `VITE_API_BASE_URL` properly configured to Render HTTPS API without trailing slash conflicts.
-- [ ] MongoDB Atlas SRV URI configured securely in Render environment variables.
-- [ ] Strict CORS origin whitelist enforced (Vercel domain allowed; wildcard `*` rejected).
-- [ ] Zero secrets, private tokens, or credentials committed in Git or client builds.
+- [x] Backend deployed to Render.com Node.js runtime over HTTPS (ADR-015).
+- [x] Frontend deployed to Vercel connected to Render backend.
+- [x] `VITE_API_BASE_URL` properly configured to Render HTTPS API without trailing slash conflicts.
+- [x] MongoDB Atlas SRV URI configured securely in Render environment variables.
+- [x] Strict CORS origin whitelist enforced (Vercel domain allowed; wildcard `*` rejected).
+- [x] Zero secrets, private tokens, or credentials committed in Git or client builds.
 
 ### AC8 – Verify Critical Integration & E2E Tests (DDP-084)
 - [ ] Customer authentication (Registration, Login, JWT verification) verified.
@@ -107,25 +107,25 @@ According to the SENG 34213 System Development Project guideline and the project
 - [ ] Residual performance risks and limits documented.
 
 ### AC11 – Verify Staging Deployment (DDP-082 & DDP-083)
-- [ ] Frontend staging URL active on Vercel over HTTPS.
-- [ ] Backend health endpoint (`/api/health`) returns HTTP 200 OK with valid uptime.
-- [ ] Frontend successfully communicates with backend without CORS errors.
-- [ ] Session persistence and token refresh behave as expected.
-- [ ] Staging verification performed on live cloud URLs, not localhost.
+- [x] Frontend staging URL active on Vercel over HTTPS (`https://osms-frontend-staging.vercel.app`).
+- [x] Backend health endpoint (`/api/health`) returns HTTP 200 OK with valid uptime on Render.
+- [x] Frontend successfully communicates with backend without CORS errors.
+- [x] Session persistence and token refresh behave as expected.
+- [x] Staging verification performed on live cloud URLs, not localhost.
 
 ### AC12 – Verify MongoDB & Migration Readiness (DDP-077)
-- [ ] MongoDB Atlas `osms-staging` database running on Replica Set.
-- [ ] Required database indexes provisioned.
-- [ ] Chatbot usage TTL index (`chatbotusages.expiresAt`) verified (1-hour auto-expiry).
-- [ ] Unique constraints (`users.email`, customer ID) active and functioning.
-- [ ] Zero destructive database migrations or schema drops pending.
+- [x] MongoDB Atlas `osms-staging` database running on Replica Set.
+- [x] Required database indexes provisioned.
+- [x] Chatbot usage TTL index (`chatbotusages.expiresAt`) verified (1-hour auto-expiry).
+- [x] Unique constraints (`users.email`, customer ID) active and functioning.
+- [x] Zero destructive database migrations or schema drops pending.
 
 ### AC13 – Verify External Service Configuration
-- [ ] PayHere payment gateway operating strictly in Sandbox mode.
-- [ ] Cloudinary media upload preset and credentials configured in Render secrets.
-- [ ] AI Chatbot provider API key configured in Render secrets (rate limits respected).
-- [ ] Notification/Email service functioning or gracefully mocked in staging.
-- [ ] Zero real monetary transactions or outbound production emails generated.
+- [x] PayHere payment gateway operating strictly in Sandbox mode (`sandbox.payhere.lk`).
+- [x] Cloudinary media upload preset and credentials configured in Render secrets.
+- [x] AI Chatbot provider API key configured in Render secrets (rate limits respected).
+- [x] Notification/Email service functioning or gracefully mocked in staging.
+- [x] Zero real monetary transactions or outbound production emails generated.
 
 ### AC14 – Confirm Final Documentation Readiness (DDP-087, 088, 089)
 - [ ] Final Software Requirements Specification (SRS) approved and version-matched.
@@ -170,10 +170,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Discrepancies between deployed revisions and Git tags eliminated.
 
 ### AC20 – Verify Rollback Readiness
-- [ ] Vercel Instant Rollback target identified and tested in practice run.
-- [ ] Render manual deploy rollback / previous commit redeploy procedure documented.
-- [ ] Database backup snapshot confirmed in MongoDB Atlas before release.
-- [ ] Non-destructive rollback procedure documented in `docs/release/rollback.md`.
+- [x] Vercel Instant Rollback target identified and tested in practice run.
+- [x] Render manual deploy rollback / previous commit redeploy procedure documented.
+- [x] Database backup snapshot confirmed in MongoDB Atlas before release.
+- [x] Non-destructive rollback procedure documented in `docs/release/rollback.md`.
 
 ### AC21 – Conduct Final Release Smoke Tests
 - [ ] Web application loads over HTTPS without console errors.
@@ -220,6 +220,6 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ## 4. Current Release Status
 
-- **Status:** In Progress (Release Manifest Defined)
-- **Current Step:** Step 2 Completed (Manifest & Multi-Repository Provenance Established)
-- **Next Step:** Step 3 (Staging Deployment Verification & Rollback Runbook)
+- **Status:** In Progress (Rollback & Staging Procedures Verified)
+- **Current Step:** Step 3 Completed (Rollback Runbook & Staging Configuration Established)
+- **Next Step:** Step 4 (Quality Gates Verification & Evidence Matrix)
