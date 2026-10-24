@@ -137,10 +137,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Architectural Decision Records (ADR-001 through ADR-015) up to date.
 
 ### AC15 – Verify Release Changelog
-- [ ] Consolidated changelog drafted summarizing major functional modules.
-- [ ] Significant bug fixes and optimizations cataloged.
-- [ ] Architecture evolutions (Vercel + Render staging per ADR-015) recorded.
-- [ ] Known minor limitations and future recommendations transparently listed.
+- [x] Consolidated changelog drafted summarizing major functional modules.
+- [x] Significant bug fixes and optimizations cataloged.
+- [x] Architecture evolutions (Vercel + Render staging per ADR-015) recorded.
+- [x] Known minor limitations and future recommendations transparently listed.
 
 ### AC16 – Apply Semantic Versioning
 - [x] Target release version confirmed as `v1.0.0` following SemVer rules (`vMAJOR.MINOR.PATCH`).
@@ -176,20 +176,20 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Non-destructive rollback procedure documented in `docs/release/rollback.md`.
 
 ### AC21 – Conduct Final Release Smoke Tests
-- [ ] Web application loads over HTTPS without console errors.
-- [ ] Backend `/api/health` reports status OK.
-- [ ] Customer login and logout workflow passes.
-- [ ] Product catalogue display and filter passes.
-- [ ] Staff dashboard and order management access passes.
-- [ ] Optometrist appointment scheduling passes.
-- [ ] Prescription management records load properly.
-- [ ] Management sales & inventory reports render correctly.
+- [x] Web application loads over HTTPS without console errors.
+- [x] Backend `/api/health` reports status OK.
+- [x] Customer login and logout workflow passes.
+- [x] Product catalogue display and filter passes.
+- [x] Staff dashboard and order management access passes.
+- [x] Optometrist appointment scheduling passes.
+- [x] Prescription management records load properly.
+- [x] Management sales & inventory reports render correctly.
 
 ### AC22 – Prepare GitHub Release Notes
-- [ ] Release title and tag (`v1.0.0 - OSMS Final Release`) formatted.
-- [ ] Executive summary and module highlights detailed.
-- [ ] Verification evidence and staging URLs recorded.
-- [ ] Known limitations documented.
+- [x] Release title and tag (`v1.0.0 - OSMS Final Release`) formatted.
+- [x] Executive summary and module highlights detailed.
+- [x] Verification evidence and staging URLs recorded.
+- [x] Known limitations documented.
 
 ### AC23 – Capture Final Release Evidence
 - [x] Release checklist and sign-off signed.
@@ -198,10 +198,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Audit trail preserved for SENG 34213 course evaluation.
 
 ### AC24 – Define Final Release Sign-Off
-- [ ] Quality gate decision confirmed:
-  - [ ] **READY FOR RELEASE** (All gates satisfied)
+- [x] Quality gate decision confirmed:
+  - [x] **READY FOR RELEASE** (All gates satisfied)
   - [ ] **BLOCKED / PENDING** (Unresolved blocking defects or unmerged PRs)
-- [ ] Final release sign-off recorded by team leads.
+- [x] Final release sign-off recorded by team leads.
 
 ---
 
@@ -220,6 +220,6 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ## 4. Current Release Status
 
-- **Status:** In Progress (Quality Gates Verified)
-- **Current Step:** Step 4 Completed (Quality Gates & Evidence Matrix Established)
-- **Next Step:** Step 5 (Release Notes, Changelog & Smoke-Test Verification)
+- **Status:** In Progress (Release Notes & Smoke-Test Verified)
+- **Current Step:** Step 5 Completed (Release Notes, Changelog & Smoke Tests Finalized)
+- **Next Step:** Step 6 (Final Test Execution & PR Preparation)

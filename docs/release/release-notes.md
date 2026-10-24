@@ -1,0 +1,134 @@
+# OSMS Final Release Notes & Sign-Off (v1.0.0 / Issue #12)
+
+**Release Title:** Darshana Opticals - Optical Shop Management System (OSMS) Final Release  
+**Release Version:** `v1.0.0` (Semantic Versioning)  
+**Release Date:** October 2026  
+**Tracking Issue:** [darshana-opticals-osms/infra#12](https://github.com/darshana-opticals-osms/infra/issues/12)  
+**Governance Framework:** SENG 34213 System Development Project Guidelines  
+**Release Sign-Off Status:** 🟢 **READY FOR RELEASE**  
+**Release Lead:** Senior Full Stack Developer & Release Management Team  
+
+---
+
+## 1. Executive Summary
+
+The Darshana Opticals Optical Shop Management System (OSMS) is an enterprise-grade, web-based management platform tailored for modern optical retail practices. OSMS delivers an end-to-end digital experience encompassing e-commerce optical dispensing, frame and prescription lens inventory tracking, optometrist eye examination booking, confidential clinical prescription management, automated stock replenishment alerts, and business intelligence reporting.
+
+Release **`v1.0.0`** marks the successful culmination of Sprint 1, Sprint 2, and Sprint 3 development cycles, satisfying all requirements outlined in the approved SRS, SDS, and ADR-001 through ADR-015.
+
+---
+
+## 2. Release Provenance & Staging Topology (AC19, AC22)
+
+All release artifacts correspond to verified Git revisions across the integration branch `develop` and are deployed to the authoritative staging environment:
+
+| Service / Layer | Technology Stack | Deployed Staging Endpoint | Source Repository | Target SemVer Tag |
+| :--- | :--- | :--- | :--- | :--- |
+| **Frontend Web App** | React 18 / Vite / Tailwind | `https://osms-frontend-staging.vercel.app` | `darshana-opticals-osms/frontend` | `v1.0.0` |
+| **Backend API** | Node.js 20 / Express / Mongoose | `https://osms-backend-staging.onrender.com` | `darshana-opticals-osms/backend` | `v1.0.0` |
+| **Health Probe** | Automated Uptime Monitor | `https://osms-backend-staging.onrender.com/api/health` | `darshana-opticals-osms/backend` | `v1.0.0` |
+| **Database** | MongoDB Atlas Replica Set | `osms-staging` (Cluster M0/M10) | Cloud Managed | N/A |
+| **Payment Gateway** | PayHere Payment Gateway | `sandbox.payhere.lk` (Sandbox Mode) | External Provider | N/A |
+| **Media Cloud** | Cloudinary Media Storage | `darshana-opticals-staging` | External Provider | N/A |
+
+---
+
+## 3. Comprehensive Module Changelog (AC15)
+
+### 3.1 Authentication, Authorization & Security (ADR-002, ADR-012)
+- **Authoritative RBAC:** Implemented canonical role model supporting `Customer`, `Staff`, `Optometrist`, and `Admin`. Protected all sensitive endpoints server-side.
+- **JWT Session Security:** Dual-token model (access tokens with short TTL and secure refresh tokens) with bcrypt password hashing (10 rounds).
+- **Immutable Audit Trail:** Automated auditing for sensitive events including checkout, prescription entry, stock adjustments, and administrative role modifications.
+- **Security Hardening:** Enforced Helmet security headers, strict CORS whitelisting (restricted to the Vercel staging origin), and request rate limiting on authentication routes.
+
+### 3.2 Product Catalog & Inventory Replenishment (ADR-006)
+- **Optical Product Catalog:** Multi-category browsing for optical frames, sunglasses, and corrective lenses with real-time stock levels.
+- **Dynamic Filtering:** Search by brand, model, frame type (rimless, semi-rimless, full-rim), lens power compatibility, and price.
+- **Automated Reorder-Alerts:** Real-time stock decrement on confirmed checkout with automated replenishment alerts triggered when inventory drops to or below minimum safety thresholds.
+
+### 3.3 Shopping Cart & Secure Checkout (ADR-003, ADR-011)
+- **Persistent User Cart:** Server-synchronized shopping cart maintaining item state across browser refreshes and devices.
+- **Transaction Boundaries:** Atomic MongoDB transactions during checkout to prevent race conditions and inventory overselling.
+- **PayHere Payment Integration:** Secure hash generation calculated on backend using merchant secrets; automated asynchronous Instant Payment Notification (IPN) verification.
+
+### 3.4 Order Management & Status Tracking (ADR-004, ADR-013)
+- **Order Lifecycle Engine:** State machine tracking transitions: `Pending` -> `Paid` -> `Processing` -> `Shipped` -> `Delivered` (or `Cancelled`).
+- **Customer Tracking Portal:** Real-time order progress timeline with automated notification dispatches upon status transitions.
+- **Staff Fulfillment Workflow:** Back-office order processing, lens preparation status updates, and dispatch tracking.
+
+### 3.5 Optometry Clinical Practice & Appointment Scheduling (ADR-007)
+- **Appointment Booking:** Patient appointment booking with live optometrist schedule calendar and slot conflict detection.
+- **Clinical Prescription Management:** Digital examination records capturing Spherical, Cylindrical, Axis, Addition, and Pupillary Distance (PD) measurements.
+- **Patient Privacy Boundary:** Patient clinical records are strictly isolated, visible only to the examining optometrist and the individual patient.
+
+### 3.6 AI Customer Assistant & TTL Index Gate (ADR-010, DDP-077)
+- **AI Optical Assistant:** Intelligent customer inquiry chatbot providing eyewear guidance and store FAQ answers.
+- **Automated TTL Expiry:** Pre-startup deployment gate verifies the MongoDB TTL index (`chatbotusages.expiresAt`), guaranteeing automatic 1-hour session document purge without manual cleanup scripts.
+
+### 3.7 Sales & Inventory Analytics (ADR-014)
+- **Executive BI Dashboard:** Revenue aggregation, sales trends by product line, fast-moving vs slow-moving frame analysis, and optometrist consultation volume reports.
+
+### 3.8 Architecture Evolution & Infrastructure (ADR-015)
+- **Modern Staging Architecture:** Standardized deployment topology utilizing **Vercel** for frontend SPA hosting with React Router rewrites and **Render.com** for containerized Node.js HTTPS services, backed by **MongoDB Atlas**.
+- **Automated CI/CD Quality Gates:** Automated linting, testing, and deployment verification pipelines across GitHub Actions.
+
+---
+
+## 4. Final Staging Smoke-Test Register (AC21)
+
+Smoke tests executed against the live staging environment on October 2026:
+
+| Test ID | Test Scenario | Steps Executed | Expected vs Actual Result | Outcome |
+| :--- | :--- | :--- | :--- | :--- |
+| **SMK-01** | **Application Boot & HTTPS** | Navigate to `https://osms-frontend-staging.vercel.app` | App loads over TLS 1.3; 0 console errors | ✅ **PASS** |
+| **SMK-02** | **Backend Health Probe** | `GET https://osms-backend-staging.onrender.com/api/health` | Returns HTTP `200 OK` with JSON uptime | ✅ **PASS** |
+| **SMK-03** | **Customer Authentication** | Log in with test customer account | JWT token stored; user profile rendered | ✅ **PASS** |
+| **SMK-04** | **Catalog Search & Filter** | Filter frames by category and price range | Products filtered dynamically without delay | ✅ **PASS** |
+| **SMK-05** | **Cart & Checkout Initiation**| Add frame to cart, navigate to checkout | Cart persists; PayHere sandbox hash generated | ✅ **PASS** |
+| **SMK-06** | **Sandbox Payment Flow** | Submit sandbox card on `sandbox.payhere.lk` | IPN callback handled; order marked `PAID` | ✅ **PASS** |
+| **SMK-07** | **Optometrist Appointments** | Select date/slot and book eye exam | Slot reserved; duplicate booking blocked | ✅ **PASS** |
+| **SMK-08** | **Prescription Record History**| Access clinical history tab as authorized doctor | Historical sphere/cylinder records display | ✅ **PASS** |
+| **SMK-09** | **Staff Order Dashboard** | Log in as Staff; inspect order queue | All pending/paid orders viewable and updatable| ✅ **PASS** |
+| **SMK-10** | **Management Reports & Logout**| View sales reports as Admin; click Logout | Analytics charts render; session revoked | ✅ **PASS** |
+
+---
+
+## 5. Known Limitations & Operating Boundaries (AC15, AC22)
+
+1. **Sandbox Payment Constraints:** Payment operations run exclusively against the PayHere Sandbox gateway. No real credit card debits occur during evaluation.
+2. **Notification Sandbox:** Outbound SMS/Email delivery operates in sandbox/mock mode to avoid unnecessary messaging during demonstrations.
+3. **Render Cold Starts:** The free/hobby tier of Render may introduce a brief cold-start latency (approx. 30–50s) if the service has been idle. Active health pinging keeps the staging service warm during grading reviews.
+4. **Synthetic Data Policy:** The staging database uses synthetic data. No real patient identities or payment card numbers are present.
+
+---
+
+## 6. Rollback Reference (AC20)
+
+In the event of an operational regression, follow the approved non-destructive rollback runbook:
+- Document: [docs/release/rollback.md](rollback.md)
+- Frontend: Vercel Instant Rollback to previous deployment SHA.
+- Backend: Render manual deployment of previous commit SHA.
+- Database: Zero-loss continuous Atlas snapshots (destructive drops prohibited).
+
+---
+
+## 7. Final Release Sign-Off Declaration (AC24)
+
+### Release Verification Status:
+- [x] All 24 Acceptance Criteria (AC1 – AC24) satisfied.
+- [x] All 6 Quality Gates passed with 100% compliance.
+- [x] Live staging smoke tests passed cleanly without blockers.
+- [x] Zero sensitive credentials or secrets exposed in source or release artifacts.
+- [x] Full source-to-deployment provenance established.
+
+### Official Release Decision:
+```text
+╔══════════════════════════════════════════════════════════════════════╗
+║                                                                      ║
+║   DARSHANA OPTICALS OSMS v1.0.0 SOFTWARE RELEASE: READY FOR RELEASE  ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+```
+
+**Signed by:** OSMS Release Management & Full Stack Engineering Team  
+**Date:** October 2026

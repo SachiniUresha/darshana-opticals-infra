@@ -8,12 +8,24 @@ const CHECKLIST_PATH = path.join(ROOT, "docs", "release", "release-checklist.md"
 const MANIFEST_PATH = path.join(ROOT, "docs", "release", "release-manifest.md");
 const ROLLBACK_PATH = path.join(ROOT, "docs", "release", "rollback.md");
 const QUALITY_GATES_PATH = path.join(ROOT, "docs", "release", "quality-gates.md");
+const RELEASE_NOTES_PATH = path.join(ROOT, "docs", "release", "release-notes.md");
 
 test("release-artifacts: required release documentation files exist", () => {
   assert.ok(fs.existsSync(CHECKLIST_PATH), "release-checklist.md must exist");
   assert.ok(fs.existsSync(MANIFEST_PATH), "release-manifest.md must exist");
   assert.ok(fs.existsSync(ROLLBACK_PATH), "rollback.md must exist");
   assert.ok(fs.existsSync(QUALITY_GATES_PATH), "quality-gates.md must exist");
+  assert.ok(fs.existsSync(RELEASE_NOTES_PATH), "release-notes.md must exist");
+});
+
+test("release-notes: documents changelog, smoke-test register, and sign-off declaration", () => {
+  const content = fs.readFileSync(RELEASE_NOTES_PATH, "utf8");
+  assert.ok(content.includes("v1.0.0"), "Must state version v1.0.0");
+  assert.ok(content.includes("Comprehensive Module Changelog"), "Must have module changelog");
+  assert.ok(content.includes("Final Staging Smoke-Test Register"), "Must have smoke-test register");
+  assert.ok(content.includes("READY FOR RELEASE"), "Must declare READY FOR RELEASE sign-off");
+  assert.ok(content.includes("https://osms-backend-staging.onrender.com"), "Must list Render backend URL");
+  assert.ok(content.includes("https://osms-frontend-staging.vercel.app"), "Must list Vercel frontend URL");
 });
 
 test("release-checklist: covers all 24 Acceptance Criteria (AC1 to AC24)", () => {
@@ -67,7 +79,7 @@ test("quality-gates: documents all 6 required quality gates and evidence", () =>
 });
 
 test("security-audit: zero sensitive credentials or private keys in release documentation", () => {
-  const files = [CHECKLIST_PATH, MANIFEST_PATH, ROLLBACK_PATH, QUALITY_GATES_PATH];
+  const files = [CHECKLIST_PATH, MANIFEST_PATH, ROLLBACK_PATH, QUALITY_GATES_PATH, RELEASE_NOTES_PATH];
   const credentialPatterns = [
     /mongodb(\+srv)?:\/\/[^:\s]+:[^@\s]+@/i,
     /-----BEGIN (RSA |EC )?PRIVATE KEY-----/,
