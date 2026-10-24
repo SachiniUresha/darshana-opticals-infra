@@ -4,25 +4,33 @@ Infrastructure, Docker, CI/CD, and deployment configurations for the Optical Sho
 
 ---
 
-## 🌐 Environments Overview
+## Current Deployment Approach (DDP-083)
 
-OSMS maintains strictly separated environments across three tiers:
+The team's current frontend delivery plan deploys the **frontend `develop` branch to Vercel Production** and connects it to the existing **Render.com backend** and its configured **MongoDB Atlas** database. **Do not change or deploy `main`** under DDP-083. There is no separate staging frontend/backend/database planned by this issue.
 
-| Environment | Purpose | Frontend Target | Backend Target | Database Target |
-| :--- | :--- | :--- | :--- | :--- |
-| **Development** | Local feature implementation & testing | Local Vite (`localhost:5173`) | Docker Compose (`localhost:5000`) | Local MongoDB (`osms-dev` replica set) |
-| **Staging** | UAT, E2E validation & academic evaluation | Vercel (Dedicated Staging Context) | AWS App Runner (`osms-backend-staging`) | MongoDB Atlas (`osms-staging` replica set) |
-| **Production** | Live operational optical store system | Vercel (Production Domain) | AWS App Runner (Production Service) | MongoDB Atlas (`osms-prod` cluster) |
+| Area | Current deployment target |
+| --- | --- |
+| Local development | React/Vite frontend + local backend/database |
+| Frontend deployment | Vercel Production; Git source branch: `develop` |
+| Backend API | Existing Render.com HTTPS service |
+| Database | MongoDB Atlas, reached only through the backend |
+| CI | Existing frontend GitHub Actions checks (lint, format, tests/coverage, build) |
+| Public configuration | Vercel `VITE_API_BASE_URL` (actual Render HTTPS API base) |
 
-For comprehensive architecture details, security guardrails, configuration contracts, and provisioning runbooks, see:
-- 📖 [Staging Environment Baseline Specification](docs/staging-environment.md)
-- 🛠️ [Staging Provisioning Runbook & Secrets Checklist](docs/staging-setup-runbook.md)
-- 🚀 [Backend Staging Deployment & Rollback Runbook](docs/backend-staging-deployment.md)
-- ⚙️ [Staging Environment Configuration Example](environments/staging.env.example)
+**Deployment is not proven complete by this repository change.** Vercel setup, CI gating, API connectivity, smoke checks, security review, and actual URLs must be verified and recorded before closing infra #10.
+
+See the [Frontend Vercel + Render deployment runbook](docs/frontend-vercel-deployment.md) for setup, verification, evidence, and rollback instructions.
+
+The documents below describe the **original staging/AWS design from earlier infrastructure issues**. They are retained as historical specifications and are **not the active DDP-083 frontend deployment instructions**:
+
+- [Original staging environment baseline](docs/staging-environment.md)
+- [Original staging provisioning runbook](docs/staging-setup-runbook.md)
+- [Original AWS backend staging runbook](docs/backend-staging-deployment.md)
+- [Historical staging configuration example](environments/staging.env.example)
 
 ---
 
-## 🧪 Secure Staging Environment Baseline (Issue #4)
+## 🧪 Historical Staging Environment Baseline (Issue #4)
 
 Infra issue #4 defines an authoritative, non-production staging boundary for UAT, integration, end-to-end, security, smoke testing, and controlled university evaluation.
 
