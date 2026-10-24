@@ -1,0 +1,225 @@
+# OSMS Final Software Release Checklist (Issue #12 / SENG 34213)
+
+**Document Reference:** `docs/release/release-checklist.md`  
+**Target Release Version:** `v1.0.0`  
+**Tracking Issue:** [darshana-opticals-osms/infra#12](https://github.com/darshana-opticals-osms/infra/issues/12)  
+**Release Lead / Role:** Senior Full Stack Developer & Release Management Team  
+**Hosting Topology:**  
+- **Frontend Staging:** Vercel (Tracking `develop`, Vite SPA rewrite)  
+- **Backend Staging:** Render.com (Node.js/Express runtime over HTTPS per ADR-015)  
+- **Database Staging:** MongoDB Atlas (`osms-staging` Replica Set)  
+- **External Providers:** PayHere Sandbox, Cloudinary, AI Chatbot API  
+
+---
+
+## 1. Overview & Governance
+
+This checklist coordinates the controlled final software release of the Darshana Opticals Optical Shop Management System (OSMS) across the four core repositories:
+1. `darshana-opticals-osms/backend`
+2. `darshana-opticals-osms/frontend`
+3. `darshana-opticals-osms/infra`
+4. `darshana-opticals-osms/documents`
+
+According to the SENG 34213 System Development Project guideline and the project Definition of Done, releases must be traceable to specific Git commits, satisfy all CI/CD quality gates, undergo verified staging integration and smoke testing, and avoid any exposure of credentials or secret keys.
+
+---
+
+## 2. Release Acceptance Criteria Checklist (AC1 – AC24)
+
+### AC1 – Establish Final Release Scope
+- [ ] Multi-repository release inventory established across `backend`, `frontend`, `infra`, and `documents`.
+- [ ] Source integration branch confirmed as `develop`.
+- [ ] Target production-ready branch confirmed as `main`.
+- [ ] Release candidate commit SHAs recorded for all 4 repositories.
+- [ ] Proposed Semantic Version established (`v1.0.0`).
+- [ ] Uncommitted local modifications strictly excluded from release scope.
+
+### AC2 – Verify Branch Strategy & Protection
+- [ ] `develop` branch confirmed as the active integration branch.
+- [ ] `main` branch confirmed as the protected production release branch.
+- [ ] Direct pushes to `main` and `develop` blocked; Pull Requests required.
+- [ ] Peer review approvals required before any merge to `main`.
+- [ ] No unreviewed or rogue commits included in release candidates.
+
+### AC3 – Verify Feature Integration Status
+- [ ] Sprint 1, Sprint 2, and Sprint 3 business features merged into `develop`.
+- [ ] All approved bug fixes and hotfixes merged into `develop`.
+- [ ] No approved required features left unmerged on standalone feature branches.
+- [ ] Zero unresolved merge conflicts across all repositories.
+- [ ] Relevant documentation updated to reflect merged features.
+
+### AC4 – Establish Release Candidate (RC)
+- [ ] Release freeze announced; feature additions locked.
+- [ ] Release candidate commit SHAs identified and logged in the Release Manifest.
+- [ ] Only critical stabilization/hotfix PRs permitted during RC evaluation.
+- [ ] Passing CI checks verified on RC commits.
+
+### AC5 – Verify Backend CI Gate
+- [ ] Dependencies installation (`npm ci`) passed cleanly.
+- [ ] Linting and code style checks passed (`npm run lint`).
+- [ ] Unit tests passed with required assertions.
+- [ ] Integration tests and database mock/fixture tests passed.
+- [ ] Build / runtime packaging verified.
+- [ ] Dependency security audits reviewed (`npm audit`).
+- [ ] Backend CI run URL and commit SHA recorded.
+
+### AC6 – Verify Frontend CI Gate
+- [ ] Dependencies installation (`npm ci`) passed cleanly.
+- [ ] Linting and formatting checks passed (`npm run lint`).
+- [ ] Component and unit tests passed.
+- [ ] Production build succeeds without errors (`npm run build`).
+- [ ] Vite asset bundling and bundle size within acceptable bounds.
+- [ ] Dependency security audit reviewed (`npm audit`).
+- [ ] Frontend CI run URL and commit SHA recorded.
+
+### AC7 – Verify Infrastructure and Deployment Configuration
+- [ ] Backend deployed to Render.com Node.js runtime over HTTPS (ADR-015).
+- [ ] Frontend deployed to Vercel connected to Render backend.
+- [ ] `VITE_API_BASE_URL` properly configured to Render HTTPS API without trailing slash conflicts.
+- [ ] MongoDB Atlas SRV URI configured securely in Render environment variables.
+- [ ] Strict CORS origin whitelist enforced (Vercel domain allowed; wildcard `*` rejected).
+- [ ] Zero secrets, private tokens, or credentials committed in Git or client builds.
+
+### AC8 – Verify Critical Integration & E2E Tests (DDP-084)
+- [ ] Customer authentication (Registration, Login, JWT verification) verified.
+- [ ] Product catalogue browsing, filtering, and stock display verified.
+- [ ] Shopping cart persistence and checkout workflow verified.
+- [ ] PayHere sandbox payment initiation, callback, and order confirmation verified.
+- [ ] Inventory deduction and reorder-alert threshold integrity verified.
+- [ ] Optometrist appointment scheduling and lifecycle verified.
+- [ ] Clinical prescription recording, history view, and privacy controls verified.
+- [ ] RBAC boundaries verified (Customer, Staff, Optometrist, Admin).
+
+### AC9 – Verify Security Release Gate (DDP-085 / OWASP)
+- [ ] OWASP Top 10 compliance checklist completed and verified.
+- [ ] No unresolved Critical or High severity security vulnerabilities.
+- [ ] Authorization checks enforced server-side on all sensitive endpoints.
+- [ ] Payment gateway hash generation validated server-side.
+- [ ] Patient clinical/prescription data access restricted to authorized clinical roles.
+- [ ] Security headers (Helmet, HTTPS redirection) verified on Render backend.
+- [ ] Staging environment verified with zero real customer/patient PII.
+
+### AC10 – Verify Performance & Reliability Gate (DDP-086)
+- [ ] Critical API endpoints response times meet NFR targets (e.g., p95 < 500ms).
+- [ ] Concurrent checkout handling prevents stock overselling.
+- [ ] Appointment booking prevents double-booking for the same optometrist slot.
+- [ ] MongoDB Atlas connection pooling and query efficiency verified.
+- [ ] Residual performance risks and limits documented.
+
+### AC11 – Verify Staging Deployment (DDP-082 & DDP-083)
+- [ ] Frontend staging URL active on Vercel over HTTPS.
+- [ ] Backend health endpoint (`/api/health`) returns HTTP 200 OK with valid uptime.
+- [ ] Frontend successfully communicates with backend without CORS errors.
+- [ ] Session persistence and token refresh behave as expected.
+- [ ] Staging verification performed on live cloud URLs, not localhost.
+
+### AC12 – Verify MongoDB & Migration Readiness (DDP-077)
+- [ ] MongoDB Atlas `osms-staging` database running on Replica Set.
+- [ ] Required database indexes provisioned.
+- [ ] Chatbot usage TTL index (`chatbotusages.expiresAt`) verified (1-hour auto-expiry).
+- [ ] Unique constraints (`users.email`, customer ID) active and functioning.
+- [ ] Zero destructive database migrations or schema drops pending.
+
+### AC13 – Verify External Service Configuration
+- [ ] PayHere payment gateway operating strictly in Sandbox mode.
+- [ ] Cloudinary media upload preset and credentials configured in Render secrets.
+- [ ] AI Chatbot provider API key configured in Render secrets (rate limits respected).
+- [ ] Notification/Email service functioning or gracefully mocked in staging.
+- [ ] Zero real monetary transactions or outbound production emails generated.
+
+### AC14 – Confirm Final Documentation Readiness (DDP-087, 088, 089)
+- [ ] Final Software Requirements Specification (SRS) approved and version-matched.
+- [ ] Final Software Design Specification (SDS) approved and architecture-aligned.
+- [ ] Test Case Register and Test Coverage Reports available (`documents#46`).
+- [ ] OWASP Security Compliance Checklist available (`documents#46` / `backend#91`).
+- [ ] Performance Test Report available (`documents#46` / `backend#92`).
+- [ ] Final Development Report ready for submission (`documents#48`).
+- [ ] Architectural Decision Records (ADR-001 through ADR-015) up to date.
+
+### AC15 – Verify Release Changelog
+- [ ] Consolidated changelog drafted summarizing major functional modules.
+- [ ] Significant bug fixes and optimizations cataloged.
+- [ ] Architecture evolutions (Vercel + Render staging per ADR-015) recorded.
+- [ ] Known minor limitations and future recommendations transparently listed.
+
+### AC16 – Apply Semantic Versioning
+- [ ] Target release version confirmed as `v1.0.0` following SemVer rules (`vMAJOR.MINOR.PATCH`).
+- [ ] Release tags approved by team consensus.
+- [ ] Version numbers synchronized across release artifacts and documentation.
+
+### AC17 – Prepare Reviewed `develop` to `main` Pull Requests
+- [ ] PR created for `darshana-opticals-osms/infra` from `develop` to `main`.
+- [ ] PR created for `darshana-opticals-osms/backend` from `develop` to `main`.
+- [ ] PR created for `darshana-opticals-osms/frontend` from `develop` to `main`.
+- [ ] PR created for `darshana-opticals-osms/documents` from `develop` to `main`.
+- [ ] All PRs pass automated CI checks.
+- [ ] Peer review approvals received on all release PRs.
+- [ ] All blocking review comments resolved before merge.
+
+### AC18 – Create Final Release Tags
+- [ ] Git tag `v1.0.0` applied to `backend` `main` merged commit.
+- [ ] Git tag `v1.0.0` applied to `frontend` `main` merged commit.
+- [ ] Git tag `v1.0.0` applied to `infra` `main` merged commit.
+- [ ] Git tag `v1.0.0` applied to `documents` `main` merged commit.
+- [ ] Release tags verified on GitHub remote.
+
+### AC19 – Verify Released Source Integrity & Provenance
+- [ ] Verified that deployed staging Vercel build corresponds to approved frontend commit SHA.
+- [ ] Verified that deployed staging Render web service corresponds to approved backend commit SHA.
+- [ ] Source commit SHAs documented in the Release Manifest.
+- [ ] Discrepancies between deployed revisions and Git tags eliminated.
+
+### AC20 – Verify Rollback Readiness
+- [ ] Vercel Instant Rollback target identified and tested in practice run.
+- [ ] Render manual deploy rollback / previous commit redeploy procedure documented.
+- [ ] Database backup snapshot confirmed in MongoDB Atlas before release.
+- [ ] Non-destructive rollback procedure documented in `docs/release/rollback.md`.
+
+### AC21 – Conduct Final Release Smoke Tests
+- [ ] Web application loads over HTTPS without console errors.
+- [ ] Backend `/api/health` reports status OK.
+- [ ] Customer login and logout workflow passes.
+- [ ] Product catalogue display and filter passes.
+- [ ] Staff dashboard and order management access passes.
+- [ ] Optometrist appointment scheduling passes.
+- [ ] Prescription management records load properly.
+- [ ] Management sales & inventory reports render correctly.
+
+### AC22 – Prepare GitHub Release Notes
+- [ ] Release title and tag (`v1.0.0 - OSMS Final Release`) formatted.
+- [ ] Executive summary and module highlights detailed.
+- [ ] Verification evidence and staging URLs recorded.
+- [ ] Known limitations documented.
+
+### AC23 – Capture Final Release Evidence
+- [ ] Release checklist and sign-off signed.
+- [ ] Release manifest with commit SHAs, PR links, and CI URLs completed.
+- [ ] Smoke test execution log archived.
+- [ ] Audit trail preserved for SENG 34213 course evaluation.
+
+### AC24 – Define Final Release Sign-Off
+- [ ] Quality gate decision confirmed:
+  - [ ] **READY FOR RELEASE** (All gates satisfied)
+  - [ ] **BLOCKED / PENDING** (Unresolved blocking defects or unmerged PRs)
+- [ ] Final release sign-off recorded by team leads.
+
+---
+
+## 3. Quality Gate Thresholds & Blocking Policy
+
+| Gate | Verification Method | Acceptance Standard | Blocker Criteria |
+| :--- | :--- | :--- | :--- |
+| **CI Gate** | GitHub Actions Workflow runs | 100% tests pass; 0 build errors | Any failing test or compile failure |
+| **Security Gate** | OWASP scan / audit review | 0 Critical, 0 High vulnerabilities | Unresolved Critical/High vulnerability |
+| **Integration Gate** | End-to-End workflow testing | 100% pass on critical paths | Any failure in checkout, auth, or clinical records |
+| **Performance Gate** | Load & latency benchmarks | API p95 < 500ms under expected load | Severe database locking or timeout |
+| **Deployment Gate** | Live HTTPS smoke test | 200 OK on health & UI loads | HTTP 5xx errors or broken CORS |
+| **Provenance Gate** | Git SHA vs Deployed Revision | Exact commit SHA match | Deployed build differs from release source |
+
+---
+
+## 4. Current Release Status
+
+- **Status:** In Progress (Release Framework Initialized)
+- **Current Step:** Step 1 Completed (Checklist & Framework established)
+- **Next Step:** Step 2 (Release Manifest & Multi-Repository Provenance)
