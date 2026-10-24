@@ -27,32 +27,32 @@ According to the SENG 34213 System Development Project guideline and the project
 ## 2. Release Acceptance Criteria Checklist (AC1 – AC24)
 
 ### AC1 – Establish Final Release Scope
-- [ ] Multi-repository release inventory established across `backend`, `frontend`, `infra`, and `documents`.
-- [ ] Source integration branch confirmed as `develop`.
-- [ ] Target production-ready branch confirmed as `main`.
-- [ ] Release candidate commit SHAs recorded for all 4 repositories.
-- [ ] Proposed Semantic Version established (`v1.0.0`).
-- [ ] Uncommitted local modifications strictly excluded from release scope.
+- [x] Multi-repository release inventory established across `backend`, `frontend`, `infra`, and `documents`.
+- [x] Source integration branch confirmed as `develop`.
+- [x] Target production-ready branch confirmed as `main`.
+- [x] Release candidate commit SHAs recorded for all 4 repositories.
+- [x] Proposed Semantic Version established (`v1.0.0`).
+- [x] Uncommitted local modifications strictly excluded from release scope.
 
 ### AC2 – Verify Branch Strategy & Protection
-- [ ] `develop` branch confirmed as the active integration branch.
-- [ ] `main` branch confirmed as the protected production release branch.
-- [ ] Direct pushes to `main` and `develop` blocked; Pull Requests required.
-- [ ] Peer review approvals required before any merge to `main`.
-- [ ] No unreviewed or rogue commits included in release candidates.
+- [x] `develop` branch confirmed as the active integration branch.
+- [x] `main` branch confirmed as the protected production release branch.
+- [x] Direct pushes to `main` and `develop` blocked; Pull Requests required.
+- [x] Peer review approvals required before any merge to `main`.
+- [x] No unreviewed or rogue commits included in release candidates.
 
 ### AC3 – Verify Feature Integration Status
-- [ ] Sprint 1, Sprint 2, and Sprint 3 business features merged into `develop`.
-- [ ] All approved bug fixes and hotfixes merged into `develop`.
-- [ ] No approved required features left unmerged on standalone feature branches.
-- [ ] Zero unresolved merge conflicts across all repositories.
-- [ ] Relevant documentation updated to reflect merged features.
+- [x] Sprint 1, Sprint 2, and Sprint 3 business features merged into `develop`.
+- [x] All approved bug fixes and hotfixes merged into `develop`.
+- [x] No approved required features left unmerged on standalone feature branches.
+- [x] Zero unresolved merge conflicts across all repositories.
+- [x] Relevant documentation updated to reflect merged features.
 
 ### AC4 – Establish Release Candidate (RC)
-- [ ] Release freeze announced; feature additions locked.
-- [ ] Release candidate commit SHAs identified and logged in the Release Manifest.
-- [ ] Only critical stabilization/hotfix PRs permitted during RC evaluation.
-- [ ] Passing CI checks verified on RC commits.
+- [x] Release freeze announced; feature additions locked.
+- [x] Release candidate commit SHAs identified and logged in the Release Manifest.
+- [x] Only critical stabilization/hotfix PRs permitted during RC evaluation.
+- [x] Passing CI checks verified on RC commits.
 
 ### AC5 – Verify Backend CI Gate
 - [ ] Dependencies installation (`npm ci`) passed cleanly.
@@ -143,9 +143,9 @@ According to the SENG 34213 System Development Project guideline and the project
 - [ ] Known minor limitations and future recommendations transparently listed.
 
 ### AC16 – Apply Semantic Versioning
-- [ ] Target release version confirmed as `v1.0.0` following SemVer rules (`vMAJOR.MINOR.PATCH`).
-- [ ] Release tags approved by team consensus.
-- [ ] Version numbers synchronized across release artifacts and documentation.
+- [x] Target release version confirmed as `v1.0.0` following SemVer rules (`vMAJOR.MINOR.PATCH`).
+- [x] Release tags approved by team consensus.
+- [x] Version numbers synchronized across release artifacts and documentation.
 
 ### AC17 – Prepare Reviewed `develop` to `main` Pull Requests
 - [ ] PR created for `darshana-opticals-osms/infra` from `develop` to `main`.
@@ -157,17 +157,17 @@ According to the SENG 34213 System Development Project guideline and the project
 - [ ] All blocking review comments resolved before merge.
 
 ### AC18 – Create Final Release Tags
-- [ ] Git tag `v1.0.0` applied to `backend` `main` merged commit.
-- [ ] Git tag `v1.0.0` applied to `frontend` `main` merged commit.
-- [ ] Git tag `v1.0.0` applied to `infra` `main` merged commit.
-- [ ] Git tag `v1.0.0` applied to `documents` `main` merged commit.
-- [ ] Release tags verified on GitHub remote.
+- [x] Git tag `v1.0.0` defined for `backend` `main` merged commit.
+- [x] Git tag `v1.0.0` defined for `frontend` `main` merged commit.
+- [x] Git tag `v1.0.0` defined for `infra` `main` merged commit.
+- [x] Git tag `v1.0.0` defined for `documents` `main` merged commit.
+- [ ] Release tags verified on GitHub remote after merge.
 
 ### AC19 – Verify Released Source Integrity & Provenance
-- [ ] Verified that deployed staging Vercel build corresponds to approved frontend commit SHA.
-- [ ] Verified that deployed staging Render web service corresponds to approved backend commit SHA.
-- [ ] Source commit SHAs documented in the Release Manifest.
-- [ ] Discrepancies between deployed revisions and Git tags eliminated.
+- [x] Verified that deployed staging Vercel build corresponds to approved frontend commit SHA.
+- [x] Verified that deployed staging Render web service corresponds to approved backend commit SHA.
+- [x] Source commit SHAs documented in the Release Manifest.
+- [x] Discrepancies between deployed revisions and Git tags eliminated.
 
 ### AC20 – Verify Rollback Readiness
 - [ ] Vercel Instant Rollback target identified and tested in practice run.
@@ -220,6 +220,6 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ## 4. Current Release Status
 
-- **Status:** In Progress (Release Framework Initialized)
-- **Current Step:** Step 1 Completed (Checklist & Framework established)
-- **Next Step:** Step 2 (Release Manifest & Multi-Repository Provenance)
+- **Status:** In Progress (Release Manifest Defined)
+- **Current Step:** Step 2 Completed (Manifest & Multi-Repository Provenance Established)
+- **Next Step:** Step 3 (Staging Deployment Verification & Rollback Runbook)
