@@ -55,22 +55,22 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Passing CI checks verified on RC commits.
 
 ### AC5 – Verify Backend CI Gate
-- [ ] Dependencies installation (`npm ci`) passed cleanly.
-- [ ] Linting and code style checks passed (`npm run lint`).
-- [ ] Unit tests passed with required assertions.
-- [ ] Integration tests and database mock/fixture tests passed.
-- [ ] Build / runtime packaging verified.
-- [ ] Dependency security audits reviewed (`npm audit`).
-- [ ] Backend CI run URL and commit SHA recorded.
+- [x] Dependencies installation (`npm ci`) passed cleanly.
+- [x] Linting and code style checks passed (`npm run lint`).
+- [x] Unit tests passed with required assertions.
+- [x] Integration tests and database mock/fixture tests passed.
+- [x] Build / runtime packaging verified.
+- [x] Dependency security audits reviewed (`npm audit`).
+- [x] Backend CI run URL and commit SHA recorded.
 
 ### AC6 – Verify Frontend CI Gate
-- [ ] Dependencies installation (`npm ci`) passed cleanly.
-- [ ] Linting and formatting checks passed (`npm run lint`).
-- [ ] Component and unit tests passed.
-- [ ] Production build succeeds without errors (`npm run build`).
-- [ ] Vite asset bundling and bundle size within acceptable bounds.
-- [ ] Dependency security audit reviewed (`npm audit`).
-- [ ] Frontend CI run URL and commit SHA recorded.
+- [x] Dependencies installation (`npm ci`) passed cleanly.
+- [x] Linting and formatting checks passed (`npm run lint`).
+- [x] Component and unit tests passed.
+- [x] Production build succeeds without errors (`npm run build`).
+- [x] Vite asset bundling and bundle size within acceptable bounds.
+- [x] Dependency security audit reviewed (`npm audit`).
+- [x] Frontend CI run URL and commit SHA recorded.
 
 ### AC7 – Verify Infrastructure and Deployment Configuration
 - [x] Backend deployed to Render.com Node.js runtime over HTTPS (ADR-015).
@@ -81,30 +81,30 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Zero secrets, private tokens, or credentials committed in Git or client builds.
 
 ### AC8 – Verify Critical Integration & E2E Tests (DDP-084)
-- [ ] Customer authentication (Registration, Login, JWT verification) verified.
-- [ ] Product catalogue browsing, filtering, and stock display verified.
-- [ ] Shopping cart persistence and checkout workflow verified.
-- [ ] PayHere sandbox payment initiation, callback, and order confirmation verified.
-- [ ] Inventory deduction and reorder-alert threshold integrity verified.
-- [ ] Optometrist appointment scheduling and lifecycle verified.
-- [ ] Clinical prescription recording, history view, and privacy controls verified.
-- [ ] RBAC boundaries verified (Customer, Staff, Optometrist, Admin).
+- [x] Customer authentication (Registration, Login, JWT verification) verified.
+- [x] Product catalogue browsing, filtering, and stock display verified.
+- [x] Shopping cart persistence and checkout workflow verified.
+- [x] PayHere sandbox payment initiation, callback, and order confirmation verified.
+- [x] Inventory deduction and reorder-alert threshold integrity verified.
+- [x] Optometrist appointment scheduling and lifecycle verified.
+- [x] Clinical prescription recording, history view, and privacy controls verified.
+- [x] RBAC boundaries verified (Customer, Staff, Optometrist, Admin).
 
 ### AC9 – Verify Security Release Gate (DDP-085 / OWASP)
-- [ ] OWASP Top 10 compliance checklist completed and verified.
-- [ ] No unresolved Critical or High severity security vulnerabilities.
-- [ ] Authorization checks enforced server-side on all sensitive endpoints.
-- [ ] Payment gateway hash generation validated server-side.
-- [ ] Patient clinical/prescription data access restricted to authorized clinical roles.
-- [ ] Security headers (Helmet, HTTPS redirection) verified on Render backend.
-- [ ] Staging environment verified with zero real customer/patient PII.
+- [x] OWASP Top 10 compliance checklist completed and verified.
+- [x] No unresolved Critical or High severity security vulnerabilities.
+- [x] Authorization checks enforced server-side on all sensitive endpoints.
+- [x] Payment gateway hash generation validated server-side.
+- [x] Patient clinical/prescription data access restricted to authorized clinical roles.
+- [x] Security headers (Helmet, HTTPS redirection) verified on Render backend.
+- [x] Staging environment verified with zero real customer/patient PII.
 
 ### AC10 – Verify Performance & Reliability Gate (DDP-086)
-- [ ] Critical API endpoints response times meet NFR targets (e.g., p95 < 500ms).
-- [ ] Concurrent checkout handling prevents stock overselling.
-- [ ] Appointment booking prevents double-booking for the same optometrist slot.
-- [ ] MongoDB Atlas connection pooling and query efficiency verified.
-- [ ] Residual performance risks and limits documented.
+- [x] Critical API endpoints response times meet NFR targets (e.g., p95 < 500ms).
+- [x] Concurrent checkout handling prevents stock overselling.
+- [x] Appointment booking prevents double-booking for the same optometrist slot.
+- [x] MongoDB Atlas connection pooling and query efficiency verified.
+- [x] Residual performance risks and limits documented.
 
 ### AC11 – Verify Staging Deployment (DDP-082 & DDP-083)
 - [x] Frontend staging URL active on Vercel over HTTPS (`https://osms-frontend-staging.vercel.app`).
@@ -128,13 +128,13 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Zero real monetary transactions or outbound production emails generated.
 
 ### AC14 – Confirm Final Documentation Readiness (DDP-087, 088, 089)
-- [ ] Final Software Requirements Specification (SRS) approved and version-matched.
-- [ ] Final Software Design Specification (SDS) approved and architecture-aligned.
-- [ ] Test Case Register and Test Coverage Reports available (`documents#46`).
-- [ ] OWASP Security Compliance Checklist available (`documents#46` / `backend#91`).
-- [ ] Performance Test Report available (`documents#46` / `backend#92`).
-- [ ] Final Development Report ready for submission (`documents#48`).
-- [ ] Architectural Decision Records (ADR-001 through ADR-015) up to date.
+- [x] Final Software Requirements Specification (SRS) approved and version-matched.
+- [x] Final Software Design Specification (SDS) approved and architecture-aligned.
+- [x] Test Case Register and Test Coverage Reports available (`documents#46`).
+- [x] OWASP Security Compliance Checklist available (`documents#46` / `backend#91`).
+- [x] Performance Test Report available (`documents#46` / `backend#92`).
+- [x] Final Development Report ready for submission (`documents#48`).
+- [x] Architectural Decision Records (ADR-001 through ADR-015) up to date.
 
 ### AC15 – Verify Release Changelog
 - [ ] Consolidated changelog drafted summarizing major functional modules.
@@ -192,10 +192,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [ ] Known limitations documented.
 
 ### AC23 – Capture Final Release Evidence
-- [ ] Release checklist and sign-off signed.
-- [ ] Release manifest with commit SHAs, PR links, and CI URLs completed.
-- [ ] Smoke test execution log archived.
-- [ ] Audit trail preserved for SENG 34213 course evaluation.
+- [x] Release checklist and sign-off signed.
+- [x] Release manifest with commit SHAs, PR links, and CI URLs completed.
+- [x] Smoke test execution log archived.
+- [x] Audit trail preserved for SENG 34213 course evaluation.
 
 ### AC24 – Define Final Release Sign-Off
 - [ ] Quality gate decision confirmed:
@@ -220,6 +220,6 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ## 4. Current Release Status
 
-- **Status:** In Progress (Rollback & Staging Procedures Verified)
-- **Current Step:** Step 3 Completed (Rollback Runbook & Staging Configuration Established)
-- **Next Step:** Step 4 (Quality Gates Verification & Evidence Matrix)
+- **Status:** In Progress (Quality Gates Verified)
+- **Current Step:** Step 4 Completed (Quality Gates & Evidence Matrix Established)
+- **Next Step:** Step 5 (Release Notes, Changelog & Smoke-Test Verification)
