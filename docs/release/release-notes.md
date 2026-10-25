@@ -84,14 +84,30 @@ This smoke-test protocol defines the verification steps for validating live syst
 | :--- | :--- | :--- | :--- | :--- |
 | **SMK-01** | **Application Boot & HTTPS** | Navigate to `https://osms-frontend-staging.vercel.app` | App loads over TLS 1.3; 0 console errors | ✅ **Verified Live (200 OK)** |
 | **SMK-02** | **Backend Health Probe** | `GET https://osms-backend-staging.onrender.com/api/health` | Returns HTTP `200 OK` with JSON uptime | ✅ **Verified Live (200 OK)** |
-| **SMK-03** | **Customer Authentication** | Log in with test customer account | JWT token stored; user profile rendered | Protocol Ready (Pending PR #68/#108) |
-| **SMK-04** | **Catalog Search & Filter** | Filter frames by category and price range | Products filtered dynamically without delay | Protocol Ready (Verified in E2E) |
-| **SMK-05** | **Cart & Checkout Initiation**| Add frame to cart, navigate to checkout | Cart persists; PayHere sandbox hash generated | Protocol Ready (Verified in E2E) |
-| **SMK-06** | **Sandbox Payment Flow** | Submit sandbox card on `sandbox.payhere.lk` | IPN callback handled; order marked `PAID` | Protocol Ready (Verified in E2E) |
-| **SMK-07** | **Optometrist Appointments** | Select date/slot and book eye exam | Slot reserved; duplicate booking blocked | Protocol Ready (Verified in E2E) |
-| **SMK-08** | **Prescription Record History**| Access clinical history tab as authorized doctor | Historical sphere/cylinder records display | Protocol Ready (Verified in E2E) |
-| **SMK-09** | **Staff Order Dashboard** | Log in as Staff; inspect order queue | All pending/paid orders viewable and updatable| Protocol Ready (Verified in E2E) |
-| **SMK-10** | **Management Reports & Logout**| View sales reports as Admin; click Logout | Analytics charts render; session revoked | Protocol Ready (Verified in E2E) |
+| **SMK-03** | **Customer Authentication** | Log in with test customer account | JWT token stored; user profile rendered | Protocol Defined (Pending post-merge deployment) |
+| **SMK-04** | **Catalog Search & Filter** | Filter frames by category and price range | Products filtered dynamically without delay | Protocol Defined (Pending post-merge deployment) |
+| **SMK-05** | **Cart & Checkout Initiation**| Add frame to cart, navigate to checkout | Cart persists; PayHere sandbox hash generated | Protocol Defined (Pending post-merge deployment) |
+| **SMK-06** | **Sandbox Payment Flow** | Submit sandbox card on `sandbox.payhere.lk` | IPN callback handled; order marked `PAID` | Protocol Defined (Pending post-merge deployment) |
+| **SMK-07** | **Optometrist Appointments** | Select date/slot and book eye exam | Slot reserved; duplicate booking blocked | Protocol Defined (Pending post-merge deployment) |
+| **SMK-08** | **Prescription Record History**| Access clinical history tab as authorized doctor | Historical sphere/cylinder records display | Protocol Defined (Pending post-merge deployment) |
+| **SMK-09** | **Staff Order Dashboard** | Log in as Staff; inspect order queue | All pending/paid orders viewable and updatable| Protocol Defined (Pending post-merge deployment) |
+| **SMK-10** | **Management Reports & Logout**| View sales reports as Admin; click Logout | Analytics charts render; session revoked | Protocol Defined (Pending post-merge deployment) |
+
+### 4.1 Automated CI Verification vs. Live Deployment Evidence (Finding 4)
+
+To ensure reliable, deterministic CI workflows and prevent external network dependencies from causing flaky build runs:
+1. **Automated CI Contract Execution (Default Mode):**
+   - The GitHub Actions `staging-baseline` workflow runs all 42 automated tests in an offline, hermetic runner.
+   - It validates document schemas, release manifests, SemVer tags, URL HTTPS schemes, and scans for credential leaks.
+   - External network requests to live staging hosts are bypassed by default (`VERIFY_LIVE_ENDPOINTS` not set).
+2. **Standalone / Live Endpoint Verification Evidence:**
+   - **SMK-01 (Vercel Frontend):** Verified live over HTTPS (`https://osms-frontend-staging.vercel.app`), serving React 18 / Vite SPA index with 0 console errors.
+   - **SMK-02 (Render Backend Health):** Verified live returning HTTP `200 OK` with JSON uptime via `GET https://osms-backend-staging.onrender.com/api/health`.
+   - **On-Demand Live Automated Probe:** Can be executed locally or in operational runs via:
+     ```bash
+     VERIFY_LIVE_ENDPOINTS=true node --test tests/release-verification.test.cjs
+     ```
+   - **Post-Merge End-to-End Verification (SMK-03 to SMK-10):** Staging deployment evidence for merged security PRs #68 and #108 will be logged upon completing the live verification protocol.
 
 ---
 
