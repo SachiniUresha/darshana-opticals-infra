@@ -31,7 +31,7 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Multi-repository release inventory established across `backend`, `frontend`, `infra`, and `documents`.
 - [x] Source integration branch confirmed as `develop`.
 - [x] Target production-ready branch confirmed as `main`.
-- [x] Release candidate commit SHAs recorded for all 4 repositories.
+- [ ] Release candidate commit SHAs recorded for infra (Base: `757f5b0` / HEAD: `37beb7f`); pending post-merge SHA capture for backend, frontend, and documents.
 - [x] Proposed Semantic Version established (`v1.0.0`).
 - [x] Uncommitted local modifications strictly excluded from release scope.
 
@@ -165,10 +165,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [ ] Release tag application pending final PR merges to `main`.
 
 ### AC19 – Verify Released Source Integrity & Provenance
-- [x] Verified that deployed staging Vercel build corresponds to approved frontend commit SHA.
-- [x] Verified that deployed staging Render web service corresponds to approved backend commit SHA.
-- [x] Source commit SHAs documented in the Release Manifest.
-- [x] Discrepancies between deployed revisions and Git tags eliminated.
+- [ ] Deployed staging Vercel build pending post-merge revision capture for merged PR #68 & #77.
+- [ ] Deployed staging Render web service pending post-merge revision capture for merged PR #108.
+- [x] Infra source commit SHAs and base commit (`757f5b0`) documented in the Release Manifest.
+- [ ] Cross-repository source provenance partially verified; full live deployment provenance pending post-merge revision IDs.
 
 ### AC20 – Verify Rollback Readiness
 - [x] Vercel Instant Rollback target identified and tested in practice run.
@@ -189,10 +189,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Known limitations documented.
 
 ### AC23 – Capture Final Release Evidence
-- [x] Release checklist and sign-off signed.
-- [x] Release manifest with commit SHAs, PR links, and CI URLs completed.
-- [x] Smoke test execution log archived.
-- [x] Audit trail preserved for SENG 34213 course evaluation.
+- [x] Release checklist established and tracking open verifications.
+- [ ] Release manifest partially completed with repository references and known commit SHAs; pending live deployment revisions and CI run URLs.
+- [ ] Smoke test execution log partially verified (baseline SMK-01 & SMK-02 verified; E2E workflow logs pending post-merge deployment).
+- [x] Audit trail framework preserved for SENG 34213 course evaluation.
 
 ### AC24 – Define Final Release Sign-Off
 - [ ] Quality gate decision confirmed:

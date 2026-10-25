@@ -101,16 +101,16 @@ GitHub Source (develop)
 | **Payment Sandbox** | **PayHere Sandbox** | `sandbox.payhere.lk` | Non-production Sandbox Mode | Merchant ID configured in Render secrets |
 | **Media Cloud** | **Cloudinary** | `darshana-opticals-staging` | Non-production Media Cloud | Secure API keys in Render secrets |
 
-### 5.2 Component Provenance & Commit Traceability (Finding 3 / AC19):
+### 5.2 Component Provenance & Commit Traceability (Finding 1 & 3 / AC19):
 
-The table below establishes provenance from source revisions through peer-reviewed pull requests to deployed staging revisions across all four repositories:
+The table below establishes source-to-deployment provenance across all four repositories, explicitly recording verified commit SHAs, PR links, and marking pending live deployment revisions:
 
-| Component / Repo | Integration Branch (`develop`) Tracking Ref | Target `main` SemVer Tag | Active / Referenced Pull Request | Deployed Staging Revision / Environment |
-| :--- | :--- | :--- | :--- | :--- |
-| **Infrastructure** (`darshana-opticals-osms/infra`) | Base: `757f5b0` (PR #22); Branch: `chore/12-final-release-coordination` | `v1.0.0` | [infra#12](https://github.com/darshana-opticals-osms/infra/issues/12) (Final Release Coordination) | GitHub Actions CI runner (`staging-baseline.yml`); Node 20 test suite |
-| **Backend API** (`darshana-opticals-osms/backend`) | Integration branch: `develop` | `v1.0.0` | [backend#108](https://github.com/darshana-opticals-osms/backend/pull/108) (OWASP Security & Verification - MERGED) | Render.com Web Service (`https://osms-backend-staging.onrender.com`); Node 20 / Express |
-| **Frontend Web App** (`darshana-opticals-osms/frontend`) | Integration branch: `develop` | `v1.0.0` | [frontend#68](https://github.com/darshana-opticals-osms/frontend/pull/68) (Security controls - MERGED) & [frontend#77](https://github.com/darshana-opticals-osms/frontend/pull/77) (Vercel SPA rewrite - MERGED) | Vercel Production Environment (`https://osms-frontend-staging.vercel.app`); Vite build |
-| **Documentation** (`darshana-opticals-osms/documents`) | Integration branch: `develop` | `v1.0.0` | [documents#46](https://github.com/darshana-opticals-osms/documents/issues/46) (QA Registers), [documents#47](https://github.com/darshana-opticals-osms/documents/issues/47) (SRS/SDS), [documents#48](https://github.com/darshana-opticals-osms/documents/issues/48) (Final Report) [Open Tracking Issues] | SENG 34213 Academic Deliverables Archive (Under Review) |
+| Component / Repo | Source Branch & Commit SHA | Target Tag | Pull Request & CI Verification Run | Deployed Staging Revision & Environment | Provenance Status |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Infrastructure** (`darshana-opticals-osms/infra`) | Base: `757f5b0` (PR #22); RC HEAD: `37beb7f` | `v1.0.0` | [infra#12](https://github.com/darshana-opticals-osms/infra/issues/12) / GitHub Actions CI: 42/42 tests pass | GitHub Actions Runner (`staging-baseline.yml`); Node 20 runtime | ✅ **Verified** |
+| **Backend API** (`darshana-opticals-osms/backend`) | `develop` (Merged commit of PR #108) | `v1.0.0` | [backend#108](https://github.com/darshana-opticals-osms/backend/pull/108) (OWASP Security - MERGED) / CI Passed | Render.com Web Service (`https://osms-backend-staging.onrender.com`); Node 20 / Express | 🟡 **Pending Post-Merge Revision ID** |
+| **Frontend Web App** (`darshana-opticals-osms/frontend`) | `develop` (Merged commit of PR #68 & #77) | `v1.0.0` | [frontend#68](https://github.com/darshana-opticals-osms/frontend/pull/68) & [frontend#77](https://github.com/darshana-opticals-osms/frontend/pull/77) (MERGED) / CI Passed | Vercel Production Environment (`https://osms-frontend-staging.vercel.app`); Vite SPA build | 🟡 **Pending Post-Merge Revision ID** |
+| **Documentation** (`darshana-opticals-osms/documents`) | `develop` | `v1.0.0` | [documents#46](https://github.com/darshana-opticals-osms/documents/issues/46), [#47](https://github.com/darshana-opticals-osms/documents/issues/47), [#48](https://github.com/darshana-opticals-osms/documents/issues/48) (Open Tracking Issues) | SENG 34213 Academic Deliverables Archive | 🟡 **In Review / Pending PR Merge** |
 
 ---
 
@@ -144,6 +144,6 @@ In accordance with project security policies:
 | **Scope & Inventory** | 4 Repositories identified with branch mappings | Fully documented in Section 2 & 5 | ✅ **PASS** |
 | **Branch Policy** | PR-based workflow; `develop` -> `main` | Verified against repository branch model | ✅ **PASS** |
 | **Feature Freeze** | All Sprint 1-3 modules integrated | Confirmed merged into `develop` | ✅ **PASS** |
-| **Provenance** | Traceable Git commits to Render & Vercel | Documented in Section 5.2 with commit & PR refs | ✅ **PASS** |
+| **Provenance** | Traceable Git commits to Render & Vercel | Documented in Section 5.2; pending post-merge live revision IDs | 🟡 **PARTIALLY VERIFIED** |
 | **Version Alignment** | Unified SemVer `v1.0.0` across components | Agreed by release team | ✅ **PASS** |
 | **Security Gates** | OWASP Top 10 verification across Frontend & Backend | PRs frontend#68 & backend#108 merged; post-merge live staging deployment verification pending | 🟡 **PENDING DEPLOYMENT VERIFICATION** |
