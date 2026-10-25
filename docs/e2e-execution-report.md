@@ -387,9 +387,9 @@ Existing backend and frontend tests may be referenced as supporting evidence, bu
 | Assigned tester               | DDP-084 assigned tester                             |
 | Frontend URL                  | https://darshana-opticals.vercel.app                |
 | Backend URL                   | https://osms-backend-staging.onrender.com           |
-| Frontend deployed revision    | Pending confirmation                                |
-| Backend deployed revision     | Pending confirmation                                |
-| Infra revision                | Local commit `58c9085` recorded; final HEAD pending |
+| Frontend deployed revision    | `aaf9cce` — Vercel Production, Ready (25 Oct 2026)  |
+| Backend deployed revision     | `152a646` — Render, Live (25 Oct 2026, 6:17 PM IST) |
+| Infra revision                | `7647730` — DDP-084 review corrections              |
 | Browser                       | Playwright Chromium                                 |
 | Browser E2E execution         | Individual local executions                         |
 | Backend regression            | Jest / Supertest                                    |
@@ -566,3 +566,16 @@ The final DDP-084 results will provide supporting evidence for:
 - **DDP-090:** Release readiness and coordination.
 
 The existing DDP-084 Draft PR #19 will remain the integration PR for the testing work until its required review and merge activities are completed.
+
+### 8.7 Peer Review Environment Evidence
+
+- Frontend: Vercel Production deployment, commit `aaf9cce`, Ready.
+- Backend: Render `osms-backend-staging`, commit `152a646`, Deploy succeeded / Live at 6:17 PM Sri Lanka time on 25 October 2026.
+- Database: MongoDB Atlas staging database, confirmed by the project team. Independent runtime configuration evidence was not inspected.
+- Test accounts and records: Fictional, non-production E2E data, as recorded in this report.
+- Deployment evidence: Vercel and Render deployment dashboard screenshots supplied during peer-review follow-up.
+- Deployment revision limitation: These screenshots identify deployments visible on 25 October 2026. They do not independently establish that the earlier Playwright executions used these exact revisions.
+- Execution process: The controlled manual Playwright process is documented in `tests/e2e/README.md`.
+- Release preflight: `scripts/e2e-preflight.cjs` blocks execution when required environment configuration is missing. Its missing-variable failure behavior was verified locally.
+- Playwright execution evidence: 10 passing individual executions were reported previously. Original sanitized per-test logs or CI artifacts have not been attached to this report.
+- PayHere: Deployed payment verification remains an explicitly documented hosting/integration limitation, not a passed test.
