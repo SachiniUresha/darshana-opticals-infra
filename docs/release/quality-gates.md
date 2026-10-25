@@ -119,17 +119,19 @@ Performance benchmarks and non-functional requirements (NFRs) defined in the app
 
 ## 7. Gate 6: Final Documentation Package Gate (AC14)
 
-Verification that all required academic and technical deliverables are approved:
+Verification that all required academic and technical deliverables are in progress or approved:
+
+> **Documentation Gate Status Notice (Finding 2):** References `documents#46` (QA Registers & Reports), `documents#47` (Final SRS & SDS), and `documents#48` (Final SENG 34213 Development Report) correspond to open documentation tracking issues currently undergoing final formatting and review. Gate 6 status is **🟡 IN PROGRESS / PENDING FINAL APPROVAL** until the corresponding pull requests are prepared, peer-reviewed, and merged into `develop`.
 
 | Deliverable | Repository & Artifact Reference | Status |
 | :--- | :--- | :--- |
-| **Final SRS** | `darshana-opticals-osms/documents#47` / Approved System Requirements Specification | ✅ **APPROVED** |
-| **Final SDS** | `darshana-opticals-osms/documents#47` / Approved System Design Specification | ✅ **APPROVED** |
-| **Test Case Register** | `darshana-opticals-osms/documents#46` / Comprehensive Test Case Register | ✅ **APPROVED** |
-| **Test Coverage Report** | `darshana-opticals-osms/documents#46` / Unit & Integration Coverage Reports | ✅ **APPROVED** |
-| **OWASP Security Checklist** | `darshana-opticals-osms/documents#46` / `backend#91` Security Compliance Checklist | ✅ **APPROVED** |
-| **Performance Test Report** | `darshana-opticals-osms/documents#46` / `backend#92` Performance & Stress Test Report | ✅ **APPROVED** |
-| **Final Development Report** | `darshana-opticals-osms/documents#48` / SENG 34213 Final Development Report | ✅ **APPROVED** |
+| **Final SRS** | `darshana-opticals-osms/documents#47` (Tracking Issue) / Approved SRS draft | 🟡 **IN REVIEW** |
+| **Final SDS** | `darshana-opticals-osms/documents#47` (Tracking Issue) / Approved SDS draft | 🟡 **IN REVIEW** |
+| **Test Case Register** | `darshana-opticals-osms/documents#46` (Tracking Issue) / Comprehensive Test Register | 🟡 **IN REVIEW** |
+| **Test Coverage Report** | `darshana-opticals-osms/documents#46` (Tracking Issue) / Unit & Integration Coverage Reports | 🟡 **IN REVIEW** |
+| **OWASP Security Checklist** | `darshana-opticals-osms/documents#46` (Tracking Issue) / `backend#91` Checklist | 🟡 **IN REVIEW** |
+| **Performance Test Report** | `darshana-opticals-osms/documents#46` (Tracking Issue) / `backend#92` Performance Report | 🟡 **IN REVIEW** |
+| **Final Development Report** | `darshana-opticals-osms/documents#48` (Tracking Issue) / SENG 34213 Report Draft | 🟡 **IN REVIEW** |
 | **Architecture Records** | `infra/docs/` / ADR-001 through ADR-015 Architectural Decision Records | ✅ **APPROVED** |
 
 ---
@@ -140,5 +142,5 @@ Verification that all required academic and technical deliverables are approved:
 - **Release Verification Date:** October 2026
 - **Staging Frontend Endpoint:** `https://osms-frontend-staging.vercel.app`
 - **Staging Backend Endpoint:** `https://osms-backend-staging.onrender.com`
-- **Overall Quality Gates Result:** 🟡 **5 OF 6 GATES SATISFIED — GATE 4 (SECURITY) PENDING POST-MERGE DEPLOYMENT EVIDENCE**
-- **Audit Decision:** Security PRs `frontend#68` and `backend#108` merged into `develop`. Release promotion to `main` is held pending recording of post-merge live staging deployment verification evidence.
+- **Overall Quality Gates Result:** 🟡 **4 OF 6 GATES SATISFIED — GATE 4 (SECURITY) & GATE 6 (DOCS) PENDING FINAL EVIDENCE**
+- **Audit Decision:** Security PRs `frontend#68` and `backend#108` merged into `develop`; documentation tracking issues `#46`, `#47`, `#48` in review. Release promotion to `main` is held pending recording of post-merge live staging deployment verification evidence and final documentation pull request approvals.

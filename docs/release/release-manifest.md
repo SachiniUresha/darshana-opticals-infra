@@ -24,7 +24,7 @@ In accordance with Acceptance Criteria **AC1, AC2, AC3, AC4, AC16, AC18, and AC1
 | **Backend API** | `darshana-opticals-osms/backend` | Node.js 20, Express, Mongoose, JWT Auth, RBAC, PayHere SDK | `develop` | `main` | `v1.0.0` | 🟢 **Merged Security PR #108** (Post-merge deployment verification pending) |
 | **Frontend UI** | `darshana-opticals-osms/frontend` | React 18, Vite, React Router, TailwindCSS, Axios | `develop` | `main` | `v1.0.0` | 🟢 **Merged Security PR #68** & **SPA PR #77** (Post-merge deployment verification pending) |
 | **Infrastructure**| `darshana-opticals-osms/infra` | Docker, Compose, GitHub Actions, Staging Baselines, Release Docs | `develop` | `main` | `v1.0.0` | 🟢 **Release Coordination Active (PR #12)** |
-| **Documentation** | `darshana-opticals-osms/documents` | SRS, SDS, ADR-001..015, Test Registers, QA & Final Reports | `develop` | `main` | `v1.0.0` | 🟢 **Deliverables Approved (PRs #46, #47, #48)** |
+| **Documentation** | `darshana-opticals-osms/documents` | SRS, SDS, ADR-001..015, Test Registers, QA & Final Reports | `develop` | `main` | `v1.0.0` | 🟡 **In Review (Tracking Issues #46, #47, #48)** |
 
 ---
 
@@ -110,7 +110,7 @@ The table below establishes provenance from source revisions through peer-review
 | **Infrastructure** (`darshana-opticals-osms/infra`) | Base: `757f5b0` (PR #22); Branch: `chore/12-final-release-coordination` | `v1.0.0` | [infra#12](https://github.com/darshana-opticals-osms/infra/issues/12) (Final Release Coordination) | GitHub Actions CI runner (`staging-baseline.yml`); Node 20 test suite |
 | **Backend API** (`darshana-opticals-osms/backend`) | Integration branch: `develop` | `v1.0.0` | [backend#108](https://github.com/darshana-opticals-osms/backend/pull/108) (OWASP Security & Verification - MERGED) | Render.com Web Service (`https://osms-backend-staging.onrender.com`); Node 20 / Express |
 | **Frontend Web App** (`darshana-opticals-osms/frontend`) | Integration branch: `develop` | `v1.0.0` | [frontend#68](https://github.com/darshana-opticals-osms/frontend/pull/68) (Security controls - MERGED) & [frontend#77](https://github.com/darshana-opticals-osms/frontend/pull/77) (Vercel SPA rewrite - MERGED) | Vercel Production Environment (`https://osms-frontend-staging.vercel.app`); Vite build |
-| **Documentation** (`darshana-opticals-osms/documents`) | Integration branch: `develop` | `v1.0.0` | [documents#46](https://github.com/darshana-opticals-osms/documents/pull/46) (QA Registers), [documents#47](https://github.com/darshana-opticals-osms/documents/pull/47) (SRS/SDS), [documents#48](https://github.com/darshana-opticals-osms/documents/pull/48) (Final Report) | SENG 34213 Approved Academic Deliverables Archive |
+| **Documentation** (`darshana-opticals-osms/documents`) | Integration branch: `develop` | `v1.0.0` | [documents#46](https://github.com/darshana-opticals-osms/documents/issues/46) (QA Registers), [documents#47](https://github.com/darshana-opticals-osms/documents/issues/47) (SRS/SDS), [documents#48](https://github.com/darshana-opticals-osms/documents/issues/48) (Final Report) [Open Tracking Issues] | SENG 34213 Academic Deliverables Archive (Under Review) |
 
 ---
 

@@ -131,13 +131,14 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Zero real monetary transactions or outbound production emails generated.
 
 ### AC14 – Confirm Final Documentation Readiness (DDP-087, 088, 089)
-- [x] Final Software Requirements Specification (SRS) approved and version-matched.
-- [x] Final Software Design Specification (SDS) approved and architecture-aligned.
-- [x] Test Case Register and Test Coverage Reports available (`documents#46`).
-- [x] OWASP Security Compliance Checklist available (`documents#46` / `backend#91`).
-- [x] Performance Test Report available (`documents#46` / `backend#92`).
-- [x] Final Development Report ready for submission (`documents#48`).
-- [x] Architectural Decision Records (ADR-001 through ADR-015) up to date.
+- [ ] Final Software Requirements Specification (SRS) in review (tracked via issue `documents#47`).
+- [ ] Final Software Design Specification (SDS) in review (tracked via issue `documents#47`).
+- [ ] Test Case Register and Test Coverage Reports in review (tracked via issue `documents#46`).
+- [ ] OWASP Security Compliance Checklist in review (`documents#46` / `backend#91`).
+- [ ] Performance Test Report in review (`documents#46` / `backend#92`).
+- [ ] Final Development Report in preparation (tracked via issue `documents#48`).
+- [x] Architectural Decision Records (ADR-001 through ADR-015) up to date in infra repository.
+- [ ] Final documentation package sign-off pending merge of documentation PRs into `develop`.
 
 ### AC15 – Verify Release Changelog
 - [x] Consolidated changelog drafted summarizing major functional modules.
