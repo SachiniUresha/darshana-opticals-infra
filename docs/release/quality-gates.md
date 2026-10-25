@@ -43,7 +43,7 @@ The Darshana Opticals OSMS release protocol enforces a strict, multi-stage Quali
 | **Code Style & Linting** | ESLint / standard rules pass without warnings or errors | 0 errors, 0 warnings | ✅ **PASS** |
 | **Unit Test Suite** | Controller, model, and helper unit tests execute and pass | 100% test pass rate | ✅ **PASS** |
 | **Integration Tests** | API endpoint and transaction boundaries pass with test DB | All integration suites pass | ✅ **PASS** |
-| **Build / Startup** | Production startup verification (`npm start` executing `node index.js`) | Service boots cleanly | ✅ **PASS** |
+| **Build / Startup** | Production startup verification (`npm start` executing `node src/server.js`) | Service boots cleanly | ✅ **PASS** |
 | **Security Audit** | `npm audit` reviewed; 0 Critical or High unresolved CVEs | Triage complete; 0 blocking CVEs | ✅ **PASS** |
 
 ---
@@ -52,7 +52,7 @@ The Darshana Opticals OSMS release protocol enforces a strict, multi-stage Quali
 
 - **Repository:** `darshana-opticals-osms/frontend`
 - **Workflow:** `.github/workflows/frontend-ci.yml` (on `develop` and release candidate PRs)
-- **Runtime Environment:** Node.js 20.x / Vite / React 18
+- **Runtime Environment:** Node.js 24.x / Vite / React 18
 
 | Verification Check | Target Standard | Verification Result | Status |
 | :--- | :--- | :--- | :--- |
@@ -69,16 +69,18 @@ The Darshana Opticals OSMS release protocol enforces a strict, multi-stage Quali
 
 System integration and end-to-end tests verify end-to-end user journeys across the connected Vercel frontend (tracking `develop`), existing Render.com backend, and configured MongoDB Atlas database under the approved DDP-083 architecture:
 
+> **Integration & E2E Status Notice (Reconciliation):** Local and CI automated integration suites pass with a 100% pass rate. In accordance with release governance, full end-to-end staging validation is partially verified on baseline infrastructure endpoints (SMK-01, SMK-02), while full live user journeys (SMK-03 to SMK-10) remain **🟡 PENDING POST-MERGE LIVE STAGING DEPLOYMENT VERIFICATION** pending recording of live staging deployment evidence for merged security PRs #68 and #108.
+
 | Workflow ID | Business Workflow | Acceptance Criteria & Behavior | Status |
 | :--- | :--- | :--- | :--- |
-| **E2E-01** | **Customer Auth & Session** | Registration, Login, JWT issuance, profile retrieval, and authenticated route access. | ✅ **PASS** |
-| **E2E-02** | **Catalog & Search** | Optical frames and prescription lenses browsing, filtering by brand/price/type. | ✅ **PASS** |
-| **E2E-03** | **Cart & Checkout Boundary** | Persistent shopping cart (ADR-003); accurate line-item and total calculation. | ✅ **PASS** |
-| **E2E-04** | **PayHere Sandbox Payment** | Server-side hash generation, redirect to PayHere sandbox, asynchronous IPN callback, order marked `PAID`. | ✅ **PASS** |
-| **E2E-05** | **Inventory Consistency** | Immediate stock deduction on confirmed checkout; reorder-alert threshold warning triggered when stock ≤ min threshold (ADR-006). | ✅ **PASS** |
-| **E2E-06** | **Appointment Scheduling** | Patient optometrist booking, slot availability verification, slot conflict prevention (ADR-007). | ✅ **PASS** |
-| **E2E-07** | **Clinical Prescriptions** | Optometrist records sphere, cylinder, axis, visual acuity; historical prescriptions accessible only by authorized doctor and patient. | ✅ **PASS** |
-| **E2E-08** | **Authoritative RBAC** | Strict role enforcement across Customer, Staff, Optometrist, and Admin roles (ADR-002). Unprivileged access returns HTTP 403 Forbidden. | ✅ **PASS** |
+| **E2E-01** | **Customer Auth & Session** | Registration, Login, JWT issuance, profile retrieval, and authenticated route access. | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-02** | **Catalog & Search** | Optical frames and prescription lenses browsing, filtering by brand/price/type. | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-03** | **Cart & Checkout Boundary** | Persistent shopping cart (ADR-003); accurate line-item and total calculation. | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-04** | **PayHere Sandbox Payment** | Server-side hash generation, redirect to PayHere sandbox, asynchronous IPN callback, order marked `PAID`. | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-05** | **Inventory Consistency** | Immediate stock deduction on confirmed checkout; reorder-alert threshold warning triggered when stock ≤ min threshold (ADR-006). | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-06** | **Appointment Scheduling** | Patient optometrist booking, slot availability verification, slot conflict prevention (ADR-007). | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-07** | **Clinical Prescriptions** | Optometrist records sphere, cylinder, axis, visual acuity; historical prescriptions accessible only by authorized doctor and patient. | 🟡 **Pending Live Verification** (CI Passed) |
+| **E2E-08** | **Authoritative RBAC** | Strict role enforcement across Customer, Staff, Optometrist, and Admin roles (ADR-002). Unprivileged access returns HTTP 403 Forbidden. | 🟡 **Pending Live Verification** (CI Passed) |
 
 ---
 
@@ -142,5 +144,5 @@ Verification that all required academic and technical deliverables are in progre
 - **Release Verification Date:** October 2026
 - **Staging Frontend Endpoint:** `https://osms-frontend-staging.vercel.app`
 - **Staging Backend Endpoint:** `https://osms-backend-staging.onrender.com`
-- **Overall Quality Gates Result:** 🟡 **4 OF 6 GATES SATISFIED — GATE 4 (SECURITY) & GATE 6 (DOCS) PENDING FINAL EVIDENCE**
+- **Overall Quality Gates Result:** 🟡 **3 OF 6 GATES SATISFIED — GATE 3 (E2E), GATE 4 (SECURITY), & GATE 6 (DOCS) PENDING POST-MERGE EVIDENCE**
 - **Audit Decision:** Security PRs `frontend#68` and `backend#108` merged into `develop`; documentation tracking issues `#46`, `#47`, `#48` in review. Release promotion to `main` is held pending recording of post-merge live staging deployment verification evidence and final documentation pull request approvals.

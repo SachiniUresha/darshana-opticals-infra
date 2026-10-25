@@ -24,10 +24,13 @@ This guide provides standardized Pull Request templates and peer review protocol
 Use this template when creating the `develop` -> `main` Pull Requests:
 
 ```markdown
-## 🚀 OSMS Final Software Release v1.0.0
+## 🚀 OSMS Final Software Release Coordination v1.0.0 (Release Candidate)
+
+### Release Status
+🟡 **PENDING / IN VERIFICATION** (Release candidate in verification; security PRs #68 & #108 merged into `develop`; post-merge live deployment verification and final documentation review in progress).
 
 ### Summary
-This Pull Request promotes the verified, release-ready candidate from `develop` into `main` for OSMS **v1.0.0**. All Sprint 1, Sprint 2, and Sprint 3 business modules, bug fixes, and quality gates are satisfied.
+This Pull Request establishes the authoritative final release coordination framework, quality gates matrix, rollback procedures, multi-repository component provenance manifest, and verification test suites for OSMS **v1.0.0**.
 
 ### Release Scope & References
 - **Release Issue:** [darshana-opticals-osms/infra#12](https://github.com/darshana-opticals-osms/infra/issues/12)
@@ -37,20 +40,20 @@ This Pull Request promotes the verified, release-ready candidate from `develop` 
 - **Rollback Runbook:** `docs/release/rollback.md`
 
 ### Verification & Quality Gates Status
-- [x] All required GitHub Actions CI checks passed on source commit.
-- [x] OWASP Top 10 security gate verified (0 Critical, 0 High defects).
-- [x] Performance requirements verified (API p95 latency < 500ms).
-- [x] Critical E2E workflows verified (Auth, Catalog, Cart, PayHere Sandbox, Appointments, Prescriptions).
-- [x] Staging deployment verified on live URLs:
-  - Frontend: `https://osms-frontend-staging.vercel.app`
-  - Backend: `https://osms-backend-staging.onrender.com`
+- [x] All required GitHub Actions CI checks passed on source commit (42/42 automated tests pass).
+- [x] Security PRs reviewed and merged into `develop`: `frontend#68` and `backend#108`.
+- [ ] Post-merge live staging deployment verification pending recording of live deployment evidence.
+- [x] Performance requirements target established (API p95 latency < 500ms).
+- [x] Baseline staging endpoints verified over HTTPS (`https://osms-frontend-staging.vercel.app` & `/api/health` 200 OK).
+- [ ] Final documentation deliverables in review under open tracking issues (`documents#46`, `#47`, `#48`).
 - [x] Zero plaintext secrets or credentials present in Git history or artifacts.
 - [x] Non-destructive rollback procedure documented and verified.
 
 ### Post-Merge Actions
-1. Apply annotated Git tag: `git tag -a v1.0.0 -m "OSMS v1.0.0 Final Software Release"`
-2. Push release tag: `git push origin v1.0.0`
-3. Publish GitHub Release with `docs/release/release-notes.md`.
+1. Record live staging deployment revisions for merged PR #68 and PR #108.
+2. Execute live smoke-test register (SMK-03 to SMK-10).
+3. Await approval and merge of final documentation pull requests (`documents#46`, `#47`, `#48`).
+4. Prepare production release promotion PRs (`develop` -> `main`) with annotated Git tag `v1.0.0`.
 ```
 
 ---

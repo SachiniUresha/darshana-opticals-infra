@@ -31,7 +31,7 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Multi-repository release inventory established across `backend`, `frontend`, `infra`, and `documents`.
 - [x] Source integration branch confirmed as `develop`.
 - [x] Target production-ready branch confirmed as `main`.
-- [ ] Release candidate commit SHAs recorded for infra (Base: `757f5b0` / HEAD: `37beb7f`); pending post-merge SHA capture for backend, frontend, and documents.
+- [ ] Release candidate commit SHAs recorded for infra (Base: `757f5b0` / HEAD: `e50ab4e`); pending post-merge SHA capture for backend, frontend, and documents.
 - [x] Proposed Semantic Version established (`v1.0.0`).
 - [x] Uncommitted local modifications strictly excluded from release scope.
 
