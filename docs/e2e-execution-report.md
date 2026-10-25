@@ -579,3 +579,20 @@ The existing DDP-084 Draft PR #19 will remain the integration PR for the testing
 - Release preflight: `scripts/e2e-preflight.cjs` blocks execution when required environment configuration is missing. Its missing-variable failure behavior was verified locally.
 - Playwright execution evidence: 10 passing individual executions were reported previously. Original sanitized per-test logs or CI artifacts have not been attached to this report.
 - PayHere: Deployed payment verification remains an explicitly documented hosting/integration limitation, not a passed test.
+
+### Peer Review Follow-up: Authentication and Authorization Retest
+
+On 25 October 2026, the deployed authentication and authorization scenarios were rerun against the configured Vercel frontend.
+
+- Initial retest: 3 passed, 4 failed, 0 skipped.
+- Failure observation: Login navigation exceeded the original 5-second Playwright assertion timeout.
+- Manual login: Reported as working.
+- Corrective action: Increased Playwright assertion timeout to 30 seconds.
+- Verification: 7 passed, 0 failed, 0 skipped, using the adjusted timeout.
+- Execution duration: 31.6 seconds.
+- Test scope: 2 authentication tests and 5 role-authorization tests.
+- Data-changing appointment, prescription, and purchase scenarios were not rerun during this verification.
+- Evidence: Terminal execution results; original passing artifacts for the other three scenarios remain unavailable.
+- Security: Raw failed-test traces and error-context files must not be uploaded because they may contain test credentials.
+
+This retest provides current passing evidence for the seven authentication and authorization scenarios. It does not independently reverify the other three browser scenarios or deployed PayHere payment completion.
