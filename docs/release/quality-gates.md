@@ -43,7 +43,7 @@ The Darshana Opticals OSMS release protocol enforces a strict, multi-stage Quali
 | **Code Style & Linting** | ESLint / standard rules pass without warnings or errors | 0 errors, 0 warnings | ✅ **PASS** |
 | **Unit Test Suite** | Controller, model, and helper unit tests execute and pass | 100% test pass rate | ✅ **PASS** |
 | **Integration Tests** | API endpoint and transaction boundaries pass with test DB | All integration suites pass | ✅ **PASS** |
-| **Build / Packaging** | Production container packaging (`node index.js`) verifies startup | Service boots cleanly | ✅ **PASS** |
+| **Build / Startup** | Production startup verification (`npm start` executing `node index.js`) | Service boots cleanly | ✅ **PASS** |
 | **Security Audit** | `npm audit` reviewed; 0 Critical or High unresolved CVEs | Triage complete; 0 blocking CVEs | ✅ **PASS** |
 
 ---
@@ -71,7 +71,7 @@ System integration and end-to-end tests verify end-to-end user journeys across t
 
 | Workflow ID | Business Workflow | Acceptance Criteria & Behavior | Status |
 | :--- | :--- | :--- | :--- |
-| **E2E-01** | **Customer Auth & Session** | Registration, Login, JWT issuance, profile retrieval, and token refresh. | ✅ **PASS** |
+| **E2E-01** | **Customer Auth & Session** | Registration, Login, JWT issuance, profile retrieval, and authenticated route access. | ✅ **PASS** |
 | **E2E-02** | **Catalog & Search** | Optical frames and prescription lenses browsing, filtering by brand/price/type. | ✅ **PASS** |
 | **E2E-03** | **Cart & Checkout Boundary** | Persistent shopping cart (ADR-003); accurate line-item and total calculation. | ✅ **PASS** |
 | **E2E-04** | **PayHere Sandbox Payment** | Server-side hash generation, redirect to PayHere sandbox, asynchronous IPN callback, order marked `PAID`. | ✅ **PASS** |
@@ -89,7 +89,7 @@ Verification of security controls conducted in accordance with the OWASP Top 10 
 | Security Vector | Control Implementation & Verification | Audit Finding | Status |
 | :--- | :--- | :--- | :--- |
 | **A01: Broken Access Control** | Server-side RBAC middleware validates every protected route. URL tampering cannot bypass role checks. | Zero bypass defects | ✅ **PASS** |
-| **A02: Cryptographic Failures** | TLS 1.3/HTTPS enforced across Vercel and Render. Passwords hashed using bcrypt (10 rounds). JWT signed with strong secret. | Sensitive data encrypted | ✅ **PASS** |
+| **A02: Cryptographic Failures** | TLS 1.3/HTTPS enforced across Vercel and Render. Passwords hashed using bcrypt per backend user schema. JWT signed with strong secret. | Sensitive data encrypted | ✅ **PASS** |
 | **A03: Injection** | Mongoose parameterized queries eliminate NoSQL injection. Input sanitization applied on request payloads. | Zero injection flaws | ✅ **PASS** |
 | **A04: Insecure Design** | Architectural review verified against ADR-001 through ADR-015. Payment validation is strictly server-authoritative. | Threat model satisfied | ✅ **PASS** |
 | **A05: Security Misconfiguration**| Helmet middleware active on Render. CORS restricted to Vercel origin. Stack traces disabled in production mode. | Secure defaults | ✅ **PASS** |
@@ -103,15 +103,15 @@ Verification of security controls conducted in accordance with the OWASP Top 10 
 
 ## 6. Gate 5: Performance & Reliability Gate (AC10 / DDP-086)
 
-Performance benchmarks executed against staging environment under simulated concurrent loads:
+Performance benchmarks and non-functional requirements (NFRs) defined in the approved SRS/SDS and evaluated in DDP-086:
 
-| Benchmark Metric | Threshold / Target | Measured Result | Evaluation | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **API Response Time (p95)** | < 500 ms for core endpoints | 185 ms (Product Catalog)<br>240 ms (Checkout Start)<br>95 ms (Health Probe) | Well within SLA | ✅ **PASS** |
-| **Concurrent Checkout** | 0 overselling under concurrent load | MongoDB transaction lock preserves stock integrity | Race-condition free | ✅ **PASS** |
-| **Appointment Slot Locking** | Prevent double-booking same slot | Simultaneous booking returns HTTP 409 Conflict for 2nd request | Conflict handled | ✅ **PASS** |
-| **Database Connection Pool** | Zero connection exhaustion | MongoDB Atlas connection pool dynamically handles load | Stable | ✅ **PASS** |
-| **Chatbot TTL Expiry** | 1-hour session auto-purge | TTL background thread auto-removes expired usage docs | Non-blocking TTL | ✅ **PASS** |
+| Benchmark Metric | Threshold / Target | Evaluation Standard | Assessment Status |
+| :--- | :--- | :--- | :--- |
+| **API Response Time (p95)** | < 500 ms for core REST API endpoints | NFR target established; benchmark suite evaluated in DDP-086 | Meets NFR Criteria |
+| **Concurrent Checkout** | 0 overselling under concurrent load | MongoDB transaction lock preserves stock integrity | Preserves consistency |
+| **Appointment Slot Locking** | Prevent double-booking same slot | Simultaneous booking returns HTTP 409 Conflict for 2nd request | Conflict handled |
+| **Database Connection Pool** | Zero connection exhaustion | MongoDB Atlas connection pool dynamically handles load | Stable |
+| **Chatbot TTL Expiry** | 1-hour session auto-purge | TTL background thread auto-removes expired usage docs | Verified (DDP-077) |
 
 ---
 

@@ -39,7 +39,7 @@ Under the approved **DDP-083 delivery plan**, OSMS deploys the **frontend `devel
 
 ### 3.1 Authentication, Authorization & Security (ADR-002, ADR-012)
 - **Authoritative RBAC:** Implemented canonical role model supporting `Customer`, `Staff`, `Optometrist`, and `Admin`. Protected all sensitive endpoints server-side.
-- **JWT Session Security:** Dual-token model (access tokens with short TTL and secure refresh tokens) with bcrypt password hashing (10 rounds).
+- **JWT Session Security:** Stateless JWT bearer token authentication with server-validated expiration, protected role authorization middleware, and standard bcrypt password hashing.
 - **Immutable Audit Trail:** Automated auditing for sensitive events including checkout, prescription entry, stock adjustments, and administrative role modifications.
 - **Security Hardening:** Enforced Helmet security headers, strict CORS whitelisting (restricted to the Vercel staging origin), and request rate limiting on authentication routes.
 
@@ -76,22 +76,22 @@ Under the approved **DDP-083 delivery plan**, OSMS deploys the **frontend `devel
 
 ---
 
-## 4. Final Staging Smoke-Test Register (AC21)
+## 4. Final Staging Smoke-Test Register & Verification Protocol (AC21)
 
-Smoke tests executed against the live staging environment on October 2026:
+This smoke-test protocol defines the verification steps for validating live system integrity across Vercel, Render.com, and MongoDB Atlas. Core infrastructure baseline probes (SMK-01, SMK-02) have been verified live, while end-to-end user workflows (SMK-03 to SMK-10) constitute the executable smoke-test register for staging release validation:
 
-| Test ID | Test Scenario | Steps Executed | Expected vs Actual Result | Outcome |
+| Test ID | Test Scenario | Steps Executed | Expected Outcome | Verification Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **SMK-01** | **Application Boot & HTTPS** | Navigate to `https://osms-frontend-staging.vercel.app` | App loads over TLS 1.3; 0 console errors | ✅ **PASS** |
-| **SMK-02** | **Backend Health Probe** | `GET https://osms-backend-staging.onrender.com/api/health` | Returns HTTP `200 OK` with JSON uptime | ✅ **PASS** |
-| **SMK-03** | **Customer Authentication** | Log in with test customer account | JWT token stored; user profile rendered | ✅ **PASS** |
-| **SMK-04** | **Catalog Search & Filter** | Filter frames by category and price range | Products filtered dynamically without delay | ✅ **PASS** |
-| **SMK-05** | **Cart & Checkout Initiation**| Add frame to cart, navigate to checkout | Cart persists; PayHere sandbox hash generated | ✅ **PASS** |
-| **SMK-06** | **Sandbox Payment Flow** | Submit sandbox card on `sandbox.payhere.lk` | IPN callback handled; order marked `PAID` | ✅ **PASS** |
-| **SMK-07** | **Optometrist Appointments** | Select date/slot and book eye exam | Slot reserved; duplicate booking blocked | ✅ **PASS** |
-| **SMK-08** | **Prescription Record History**| Access clinical history tab as authorized doctor | Historical sphere/cylinder records display | ✅ **PASS** |
-| **SMK-09** | **Staff Order Dashboard** | Log in as Staff; inspect order queue | All pending/paid orders viewable and updatable| ✅ **PASS** |
-| **SMK-10** | **Management Reports & Logout**| View sales reports as Admin; click Logout | Analytics charts render; session revoked | ✅ **PASS** |
+| **SMK-01** | **Application Boot & HTTPS** | Navigate to `https://osms-frontend-staging.vercel.app` | App loads over TLS 1.3; 0 console errors | ✅ **Verified Live (200 OK)** |
+| **SMK-02** | **Backend Health Probe** | `GET https://osms-backend-staging.onrender.com/api/health` | Returns HTTP `200 OK` with JSON uptime | ✅ **Verified Live (200 OK)** |
+| **SMK-03** | **Customer Authentication** | Log in with test customer account | JWT token stored; user profile rendered | Protocol Ready (Pending PR #68/#108) |
+| **SMK-04** | **Catalog Search & Filter** | Filter frames by category and price range | Products filtered dynamically without delay | Protocol Ready (Verified in E2E) |
+| **SMK-05** | **Cart & Checkout Initiation**| Add frame to cart, navigate to checkout | Cart persists; PayHere sandbox hash generated | Protocol Ready (Verified in E2E) |
+| **SMK-06** | **Sandbox Payment Flow** | Submit sandbox card on `sandbox.payhere.lk` | IPN callback handled; order marked `PAID` | Protocol Ready (Verified in E2E) |
+| **SMK-07** | **Optometrist Appointments** | Select date/slot and book eye exam | Slot reserved; duplicate booking blocked | Protocol Ready (Verified in E2E) |
+| **SMK-08** | **Prescription Record History**| Access clinical history tab as authorized doctor | Historical sphere/cylinder records display | Protocol Ready (Verified in E2E) |
+| **SMK-09** | **Staff Order Dashboard** | Log in as Staff; inspect order queue | All pending/paid orders viewable and updatable| Protocol Ready (Verified in E2E) |
+| **SMK-10** | **Management Reports & Logout**| View sales reports as Admin; click Logout | Analytics charts render; session revoked | Protocol Ready (Verified in E2E) |
 
 ---
 

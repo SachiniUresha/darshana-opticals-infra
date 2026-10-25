@@ -60,7 +60,7 @@ feature/*, chore/*, fix/* (Short-lived branches)
 A formal code freeze is instituted on `develop` for version `v1.0.0`. No new functional features may be introduced. Only release-blocking defect fixes and approved release documentation are permitted.
 
 ### 4.2 Integrated Business Modules Matrix:
-- ✅ **Authentication & Authorization (ADR-002):** Multi-role RBAC (Customer, Staff, Optometrist, Admin) with secure JWT and refresh token handling.
+- ✅ **Authentication & Authorization (ADR-002):** Multi-role RBAC (Customer, Staff, Optometrist, Admin) with secure stateless JWT Bearer token authentication and role authorization middleware.
 - ✅ **Product & Inventory Management (ADR-006):** Complete frame/lens catalog, categories, stock tracking, and automated reorder-alert threshold rules.
 - ✅ **Shopping Cart & Checkout (ADR-003):** Persistent user cart, price calculations, and checkout transaction boundaries.
 - ✅ **Payment Gateway Integration (ADR-011):** Secure PayHere Sandbox hash generation, payment redirect, and asynchronous server-to-server IPN verification.
