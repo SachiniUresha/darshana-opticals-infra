@@ -71,3 +71,28 @@ against the approved integrated Vercel + Render environment.
 Execution results and evidence are recorded in:
 
 `docs/e2e-execution-report.md`
+
+## Release Verification and Review Safeguards
+
+The regular Playwright command supports targeted local development and test discovery. Individual tests may skip when the relevant fictional test accounts or scenario configuration are unavailable.
+
+For release verification, use:
+
+`npm run test:e2e:release`
+
+This command runs `scripts/e2e-preflight.cjs` before Playwright. Missing required environment variables cause the command to fail before browser execution, preventing critical scenarios from silently being reported as successful due to absent configuration.
+
+The preflight validates configuration presence only. It does not confirm database isolation or guarantee successful application execution.
+
+### Controlled Manual Execution
+
+The release-critical scenarios modify shared application state, including appointments, prescriptions, and orders. Therefore:
+
+1. Verify that the deployed backend is connected to an approved non-production database.
+2. Use fictional accounts and dedicated test data.
+3. Execute the scenarios individually using the controlled Playwright process.
+4. Record execution date, deployed frontend/backend revisions, result, and sanitized evidence.
+5. Do not interpret Playwright test discovery or skipped tests as successful execution.
+6. Do not rerun data-mutating scenarios against previously consumed test records without preparing fresh isolated data.
+
+Deployed PayHere payment completion remains a documented hosting limitation and is not reported as passed.
