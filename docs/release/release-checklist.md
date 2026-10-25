@@ -92,8 +92,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] RBAC boundaries verified (Customer, Staff, Optometrist, Admin).
 
 ### AC9 – Verify Security Release Gate (DDP-085 / OWASP)
-- [x] OWASP Top 10 compliance checklist completed and verified.
-- [x] No unresolved Critical or High severity security vulnerabilities.
+- [x] OWASP Top 10 compliance checklist completed and documented.
+- [ ] Frontend security PR #68 open (pending peer review and merge into `develop`).
+- [ ] Backend security PR #108 open (pending peer review and merge into `develop`).
+- [ ] Final security gate sign-off pending merge of PR #68 and PR #108.
 - [x] Authorization checks enforced server-side on all sensitive endpoints.
 - [x] Payment gateway hash generation validated server-side.
 - [x] Patient clinical/prescription data access restricted to authorized clinical roles.
@@ -150,7 +152,7 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ### AC17 – Prepare Reviewed `develop` to `main` Pull Requests
 - [x] PR templates and specifications prepared for `infra`, `backend`, `frontend`, and `documents`.
-- [x] All required CI checks validated and passing on integration commits.
+- [ ] Production promotion PRs pending merge of open security fixes in `develop`.
 - [x] Peer review checklist and guidelines established (`docs/release/release-pr-template.md`).
 - [x] Blocking comments resolution and merge requirements defined.
 
@@ -159,7 +161,7 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Git tag `v1.0.0` defined for `frontend` `main` merged commit.
 - [x] Git tag `v1.0.0` defined for `infra` `main` merged commit.
 - [x] Git tag `v1.0.0` defined for `documents` `main` merged commit.
-- [x] Release tag creation workflow and format documented.
+- [ ] Release tag application pending final PR merges to `main`.
 
 ### AC19 – Verify Released Source Integrity & Provenance
 - [x] Verified that deployed staging Vercel build corresponds to approved frontend commit SHA.
@@ -174,14 +176,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Non-destructive rollback procedure documented in `docs/release/rollback.md`.
 
 ### AC21 – Conduct Final Release Smoke Tests
-- [x] Web application loads over HTTPS without console errors.
-- [x] Backend `/api/health` reports status OK.
-- [x] Customer login and logout workflow passes.
-- [x] Product catalogue display and filter passes.
-- [x] Staff dashboard and order management access passes.
-- [x] Optometrist appointment scheduling passes.
-- [x] Prescription management records load properly.
-- [x] Management sales & inventory reports render correctly.
+- [x] Baseline web application loads over HTTPS without console errors (SMK-01 verified).
+- [x] Backend `/api/health` reports status OK on Render (SMK-02 verified).
+- [ ] End-to-end customer and checkout verification pending live deployment of PR #68 and #108.
+- [x] Smoke-test register and execution protocol documented.
 
 ### AC22 – Prepare GitHub Release Notes
 - [x] Release title and tag (`v1.0.0 - OSMS Final Release`) formatted.
@@ -196,10 +194,10 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Audit trail preserved for SENG 34213 course evaluation.
 
 ### AC24 – Define Final Release Sign-Off
-- [x] Quality gate decision confirmed:
-  - [x] **READY FOR RELEASE** (All gates satisfied)
-  - [ ] **BLOCKED / PENDING** (Unresolved blocking defects or unmerged PRs)
-- [x] Final release sign-off recorded by team leads.
+- [ ] Quality gate decision confirmed:
+  - [ ] **READY FOR RELEASE** (Blocked until frontend#68 and backend#108 are merged)
+  - [x] **PENDING / IN VERIFICATION** (Release candidate in verification; awaiting security PR reconciliations)
+- [x] Release readiness framework established by team leads.
 
 ---
 
@@ -218,6 +216,6 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ## 4. Current Release Status
 
-- **Status:** 🟢 **READY FOR RELEASE** (All 24 ACs Satisfied, Quality Gates 100% Pass)
-- **Current Step:** Step 6 Completed (Final Quality Verification & PR Preparation Finalized)
-- **Next Action:** Peer review & PR merge into `develop` / release promotion to `main` with tag `v1.0.0`.
+- **Status:** 🟡 **PENDING / IN VERIFICATION** (Release Candidate undergoing verification; pending open PRs frontend#68 and backend#108)
+- **Current Milestone:** Release Coordination & Verification Framework Established
+- **Next Blocker Resolution:** Merge frontend PR #68 and backend PR #108, execute live smoke-test verification protocol, then execute release promotion.

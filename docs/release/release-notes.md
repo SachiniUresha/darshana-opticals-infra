@@ -5,7 +5,7 @@
 **Release Date:** October 2026  
 **Tracking Issue:** [darshana-opticals-osms/infra#12](https://github.com/darshana-opticals-osms/infra/issues/12)  
 **Governance Framework:** SENG 34213 System Development Project Guidelines  
-**Release Sign-Off Status:** 🟢 **READY FOR RELEASE**  
+**Release Sign-Off Status:** 🟡 **PENDING / IN VERIFICATION** (Awaiting merge of open security PRs: `frontend#68`, `backend#108`)  
 **Release Lead:** Senior Full Stack Developer & Release Management Team  
 
 ---
@@ -117,9 +117,11 @@ In the event of an operational regression, follow the approved non-destructive r
 ## 7. Final Release Sign-Off Declaration (AC24)
 
 ### Release Verification Status:
-- [x] All 24 Acceptance Criteria (AC1 – AC24) satisfied.
-- [x] All 6 Quality Gates passed with 100% compliance.
-- [x] Live staging smoke tests passed cleanly without blockers.
+- [x] Release coordination and verification framework established across all 4 repositories.
+- [x] Baseline infrastructure and staging endpoints active and verified live (`/api/health` 200 OK).
+- [ ] Final security gates and smoke tests pending merge of open PRs:
+  - `darshana-opticals-osms/frontend#68` (OWASP security controls)
+  - `darshana-opticals-osms/backend#108` (OWASP security verification)
 - [x] Zero sensitive credentials or secrets exposed in source or release artifacts.
 - [x] Full source-to-deployment provenance established.
 
@@ -127,7 +129,8 @@ In the event of an operational regression, follow the approved non-destructive r
 ```text
 ╔══════════════════════════════════════════════════════════════════════╗
 ║                                                                      ║
-║   DARSHANA OPTICALS OSMS v1.0.0 SOFTWARE RELEASE: READY FOR RELEASE  ║
+║   DARSHANA OPTICALS OSMS v1.0.0 RELEASE: PENDING / IN VERIFICATION   ║
+║   (Final release promotion held pending merge of PR #68 & PR #108)   ║
 ║                                                                      ║
 ╚══════════════════════════════════════════════════════════════════════╝
 ```

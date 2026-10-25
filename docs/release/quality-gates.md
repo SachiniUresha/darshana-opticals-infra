@@ -86,6 +86,8 @@ System integration and end-to-end tests verify end-to-end user journeys across t
 
 Verification of security controls conducted in accordance with the OWASP Top 10 standard:
 
+> **Security Gate Status Notice (Finding 2):** Two security pull requests remain open under peer review: frontend OWASP security controls (`darshana-opticals-osms/frontend#68`) and backend security verification (`darshana-opticals-osms/backend#108`). Final sign-off on Gate 4 is **PENDING** until these PRs are merged into `develop` and verified on staging.
+
 | Security Vector | Control Implementation & Verification | Audit Finding | Status |
 | :--- | :--- | :--- | :--- |
 | **A01: Broken Access Control** | Server-side RBAC middleware validates every protected route. URL tampering cannot bypass role checks. | Zero bypass defects | ✅ **PASS** |
@@ -138,5 +140,5 @@ Verification that all required academic and technical deliverables are approved:
 - **Release Verification Date:** October 2026
 - **Staging Frontend Endpoint:** `https://osms-frontend-staging.vercel.app`
 - **Staging Backend Endpoint:** `https://osms-backend-staging.onrender.com`
-- **Overall Quality Gates Result:** **ALL 6 GATES SATISFIED (100% PASS RATE)**
-- **Audit Decision:** Candidate qualifies for promotion to `main` branch.
+- **Overall Quality Gates Result:** 🟡 **5 OF 6 GATES SATISFIED — GATE 4 (SECURITY) PENDING VERIFICATION**
+- **Audit Decision:** Candidate verification in progress. Release promotion to `main` is held pending merge of security PRs `frontend#68` and `backend#108`.

@@ -23,7 +23,7 @@ test("release-notes: documents changelog, smoke-test register, and sign-off decl
   assert.ok(content.includes("v1.0.0"), "Must state version v1.0.0");
   assert.ok(content.includes("Comprehensive Module Changelog"), "Must have module changelog");
   assert.ok(content.includes("Final Staging Smoke-Test Register"), "Must have smoke-test register");
-  assert.ok(content.includes("READY FOR RELEASE"), "Must declare READY FOR RELEASE sign-off");
+  assert.ok(content.includes("PENDING / IN VERIFICATION"), "Must declare PENDING / IN VERIFICATION sign-off");
   assert.ok(content.includes("https://osms-backend-staging.onrender.com"), "Must list Render backend URL");
   assert.ok(content.includes("https://osms-frontend-staging.vercel.app"), "Must list Vercel frontend URL");
 });
