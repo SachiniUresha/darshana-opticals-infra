@@ -1,4 +1,4 @@
-﻿# DDP-084 Critical System Integration and E2E Test Plan
+# DDP-084 Critical System Integration and E2E Test Plan
 
 ## 1. Purpose
 
@@ -20,17 +20,17 @@ the approved integrated staging environment.
 
 Primary execution target:
 
-- Frontend: Vercel staging
-- Backend: AWS App Runner staging
+- Frontend: Vercel production deployment used as the approved E2E frontend target
+- Backend: Render.com deployed backend
 - Database: dedicated MongoDB Atlas staging database
 - Payment provider: PayHere sandbox
 - Test data: fictional non-production records only
 
 Current execution status:
 
-**Blocked - integrated frontend/backend staging deployment is not yet available.**
+**Ready for controlled execution against the approved integrated Vercel + Render deployment. Ten Playwright tests have passed in individual executions; full PayHere sandbox payment completion remains blocked.**
 
-Test preparation may continue while staging deployment is pending.
+The integrated deployment is available; preparation now proceeds to controlled E2E execution using approved fictional test data.
 
 ---
 
@@ -99,11 +99,11 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - staging deployment required.**
+**Pending - integrated deployed-environment execution required.**
 
 ---
 
@@ -149,11 +149,11 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - staging and PayHere sandbox integration required.**
+**Pending - deployed-environment execution and PayHere sandbox verification required.**
 
 ---
 
@@ -182,11 +182,11 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - staging and PayHere sandbox integration required.**
+**Pending - deployed-environment execution and PayHere sandbox verification required.**
 
 ---
 
@@ -225,11 +225,11 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - staging deployment required.**
+**Pending - integrated deployed-environment execution required.**
 
 ---
 
@@ -257,11 +257,11 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - staging deployment required.**
+**Pending - integrated deployed-environment execution required.**
 
 ---
 
@@ -298,11 +298,11 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - staging deployment required.**
+**Pending - integrated deployed-environment execution required.**
 
 ---
 
@@ -338,25 +338,25 @@ Backend authorization remains authoritative.
 
 #### Actual Result
 
-**Not executed - required integrated staging environment is not yet available.**
+**Not executed yet against the approved integrated Vercel + Render environment.**
 
 #### Execution Status
 
-**Blocked - integrated staging execution required.**
+**Pending - integrated deployed-environment execution required.**
 
 ---
 
 ## 6. Initial Requirement Traceability
 
-| Test Case | SRS Requirement | ADR |
-| --- | --- | --- |
-| E2E-AUTH-01 | FR-001 | ADR-002 |
-| E2E-PURCHASE-01 | FR-004, FR-005, FR-009, FR-014 | ADR-003, ADR-004, ADR-011 |
-| E2E-PURCHASE-02 | FR-004, FR-005, FR-009 | ADR-003, ADR-004, ADR-011 |
-| E2E-APPOINTMENT-01 | FR-007 | ADR-007 |
-| E2E-APPOINTMENT-02 | FR-007 | ADR-007 |
-| E2E-PRESCRIPTION-01 | FR-002, FR-013 | ADR-001, ADR-002 |
-| E2E-AUTHZ-01 | FR-001 and protected feature requirements | ADR-002 |
+| Test Case           | SRS Requirement                           | ADR                       |
+| ------------------- | ----------------------------------------- | ------------------------- |
+| E2E-AUTH-01         | FR-001                                    | ADR-002                   |
+| E2E-PURCHASE-01     | FR-004, FR-005, FR-009, FR-014            | ADR-003, ADR-004, ADR-011 |
+| E2E-PURCHASE-02     | FR-004, FR-005, FR-009                    | ADR-003, ADR-004, ADR-011 |
+| E2E-APPOINTMENT-01  | FR-007                                    | ADR-007                   |
+| E2E-APPOINTMENT-02  | FR-007                                    | ADR-007                   |
+| E2E-PRESCRIPTION-01 | FR-002, FR-013                            | ADR-001, ADR-002          |
+| E2E-AUTHZ-01        | FR-001 and protected feature requirements | ADR-002                   |
 
 Additional Priority 2 scenarios will be added after the release-critical
 automation boundary is finalized.
@@ -402,10 +402,10 @@ will be introduced under `tests/e2e/`.
 
 - Critical test scope: Prepared.
 - Requirement/ADR traceability: Prepared for Priority 1 scenarios.
-- Automated browser implementation: Not started.
-- Local integration preparation: Not started.
-- Staging execution: Blocked pending staging deployment.
-- Actual Pass/Fail evidence: Not yet available.
+- Automated browser implementation: Prepared - 10 Playwright tests across 5 spec files.
+- Local integration preparation: Complete for Playwright configuration and test discovery; runtime test data and credentials are still required.
+- Deployed execution: 10/10 Playwright tests passed individually against Vercel + Render.
+- Actual Pass/Fail evidence: Recorded in docs/e2e-execution-report.md. PayHere gateway rejected the manual payment request.
 
 ---
 
@@ -423,12 +423,12 @@ The following workflows require real browser-level verification because their
 purpose is to prove that frontend, backend, authentication state, routing,
 database state, and integrations work together:
 
-| Scenario | Browser E2E Scope |
-| --- | --- |
-| E2E-AUTH-01 | Login, protected navigation, logout and post-logout protection |
-| E2E-PURCHASE-01 | Catalogue, Cart, Checkout, PayHere sandbox, Order History and inventory consistency |
-| E2E-APPOINTMENT-01 | Doctor setup, Doctor Session creation and Customer booking |
-| E2E-PRESCRIPTION-01 | Optometrist prescription entry and Customer history |
+| Scenario            | Browser E2E Scope                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| E2E-AUTH-01         | Login, protected navigation, logout and post-logout protection                      |
+| E2E-PURCHASE-01     | Catalogue, Cart, Checkout, PayHere sandbox, Order History and inventory consistency |
+| E2E-APPOINTMENT-01  | Doctor setup, Doctor Session creation and Customer booking                          |
+| E2E-PRESCRIPTION-01 | Optometrist prescription entry and Customer history                                 |
 
 ### Hybrid / Representative Browser Verification
 
@@ -436,11 +436,11 @@ The following scenarios already have substantial backend integration coverage.
 DDP-084 will execute representative browser cases without duplicating every
 lower-level negative test:
 
-| Scenario | DDP-084 Approach |
-| --- | --- |
-| E2E-PURCHASE-02 | Reuse payment/checkout/inventory integration coverage and add representative staging cancellation/failure verification |
+| Scenario           | DDP-084 Approach                                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| E2E-PURCHASE-02    | Reuse payment/checkout/inventory integration coverage and add representative staging cancellation/failure verification |
 | E2E-APPOINTMENT-02 | Reuse appointment conflict/cancellation API coverage and add representative staging conflict/cancellation verification |
-| E2E-AUTHZ-01 | Reuse security/RBAC API coverage and add representative protected-route and role-isolation browser checks |
+| E2E-AUTHZ-01       | Reuse security/RBAC API coverage and add representative protected-route and role-isolation browser checks              |
 
 ### Existing Coverage Reused
 

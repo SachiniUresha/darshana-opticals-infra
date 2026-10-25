@@ -1,4 +1,4 @@
-﻿# DDP-084 Browser E2E Tests
+# DDP-084 Browser E2E Tests
 
 This directory contains the small release-critical Playwright suite for DDP-084.
 
@@ -10,15 +10,15 @@ Prepared integrated workflows:
 - Doctor Session creation and Customer appointment booking;
 - Optometrist prescription recording and Customer prescription history.
 
-The primary execution target is the approved OSMS staging environment.
+The primary execution target is the approved integrated Vercel + Render environment using fictional non-production E2E data.
 
 ## Execution
 
-Use `E2E_BASE_URL` when executing against staging.
+Use `E2E_BASE_URL` when executing against the approved deployed frontend.
 
 Example:
 
-`$env:E2E_BASE_URL = "https://<approved-staging-frontend>"`
+`$env:E2E_BASE_URL = "https://darshana-opticals.vercel.app"`
 
 Then run:
 
@@ -52,13 +52,13 @@ Configure only the variables required by the scenarios being executed.
 
 `E2E_APPOINTMENT_CAPACITY` defaults to `2`.
 
-Use only approved fictional staging accounts and test data.
+Use only approved fictional non-production E2E accounts and test data.
 
-The appointment configuration must use a dedicated future staging slot that is
+The appointment configuration must use a dedicated future E2E test slot that is
 outside the applicable booking restriction and does not overlap another Doctor
 Session.
 
-The product configuration must identify a designated staging inventory item
+The product configuration must identify a designated E2E inventory item
 with valid classification and sufficient stock.
 
 ## Evidence
@@ -66,7 +66,7 @@ with valid classification and sufficient stock.
 Playwright discovery confirms only that test files are valid and discoverable.
 
 No scenario should be reported as passed until it has actually been executed
-against the intended integrated staging environment.
+against the approved integrated Vercel + Render environment.
 
 Execution results and evidence are recorded in:
 
