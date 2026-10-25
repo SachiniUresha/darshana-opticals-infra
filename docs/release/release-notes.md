@@ -18,18 +18,20 @@ Release **`v1.0.0`** marks the successful culmination of Sprint 1, Sprint 2, and
 
 ---
 
-## 2. Release Provenance & Staging Topology (AC19, AC22)
+## 2. Release Provenance & Deployed Topology (DDP-083 / AC19, AC22)
 
-All release artifacts correspond to verified Git revisions across the integration branch `develop` and are deployed to the authoritative staging environment:
+Under the approved **DDP-083 delivery plan**, OSMS deploys the **frontend `develop` branch to Vercel Production** and connects it to the existing **Render.com Node.js backend** and configured **MongoDB Atlas** database. No separate or redundant staging stack is created.
 
-| Service / Layer | Technology Stack | Deployed Staging Endpoint | Source Repository | Target SemVer Tag |
+| Service / Layer | Technology Stack | Deployed Endpoint | Source Repository / Branch | Target SemVer Tag |
 | :--- | :--- | :--- | :--- | :--- |
-| **Frontend Web App** | React 18 / Vite / Tailwind | `https://osms-frontend-staging.vercel.app` | `darshana-opticals-osms/frontend` | `v1.0.0` |
-| **Backend API** | Node.js 20 / Express / Mongoose | `https://osms-backend-staging.onrender.com` | `darshana-opticals-osms/backend` | `v1.0.0` |
+| **Frontend Web App** | React 18 / Vite / Tailwind | `https://osms-frontend-staging.vercel.app` | `darshana-opticals-osms/frontend` (`develop`) | `v1.0.0` |
+| **Backend API** | Node.js 20 / Express / Mongoose | `https://osms-backend-staging.onrender.com` | `darshana-opticals-osms/backend` (`develop`) | `v1.0.0` |
 | **Health Probe** | Automated Uptime Monitor | `https://osms-backend-staging.onrender.com/api/health` | `darshana-opticals-osms/backend` | `v1.0.0` |
-| **Database** | MongoDB Atlas Replica Set | `osms-staging` (Cluster M0/M10) | Cloud Managed | N/A |
+| **Database** | MongoDB Atlas Cluster | Configured Atlas Cluster (accessed via Backend) | Cloud Managed | N/A |
 | **Payment Gateway** | PayHere Payment Gateway | `sandbox.payhere.lk` (Sandbox Mode) | External Provider | N/A |
 | **Media Cloud** | Cloudinary Media Storage | `darshana-opticals-staging` | External Provider | N/A |
+
+> **Historical Architecture Note:** Dedicated AWS App Runner and separate multi-stack staging baselines from earlier infra #4/#9 are retained as historical specifications and do not represent the active DDP-083 live deployment path.
 
 ---
 

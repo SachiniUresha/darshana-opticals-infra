@@ -74,32 +74,34 @@ A formal code freeze is instituted on `develop` for version `v1.0.0`. No new fun
 
 ## 5. Source-to-Deployment Traceability & Provenance (AC7, AC11, AC19)
 
-To ensure tamper-proof provenance, every running service on staging is explicitly mapped to its verified Git source revision:
+In accordance with the approved **DDP-083 deployment approach**, OSMS uses a unified cloud deployment architecture where **Vercel Production tracks `develop`** and connects to the existing **Render.com Node.js backend** and configured **MongoDB Atlas** database. No separate or redundant staging stack is created.
 
 ```text
 GitHub Source (develop)
        │
-       ├── Backend (Repo: backend)  ──► Render.com Web Service  ──► https://osms-backend-staging.onrender.com
+       ├── Backend (Repo: backend)  ──► Existing Render.com Service ──► https://osms-backend-staging.onrender.com
        │                                     │
        │                                     ├── REST API: /api/*
        │                                     └── Health: /api/health
        │
-       ├── Frontend (Repo: frontend) ──► Vercel Hosting          ──► https://osms-frontend-staging.vercel.app
-       │                                     │
-       │                                     └── Calls Backend API via HTTPS
+       ├── Frontend (Repo: frontend) ──► Vercel Production Preview   ──► https://osms-frontend-staging.vercel.app
+       │                                     │                           (Branch tracked: develop)
+       │                                     └── Calls Render Backend API via HTTPS
        │
-       └── Database                  ──► MongoDB Atlas Cluster  ──► Replica Set: osms-staging
+       └── Database                  ──► Configured MongoDB Atlas   ──► Reached only through Backend
 ```
 
-### 5.1 Deployed Artifacts & Environments:
+### 5.1 Deployed Artifacts & Cloud Runtimes (DDP-083):
 
-| Component | Target Hosting Platform | Deployed Live URL / Identifier | Environment Scope | Source Verification |
+| Component | Target Hosting Platform | Deployed Live URL / Identifier | Environment & Branch Tracking | Source Verification Status |
 | :--- | :--- | :--- | :--- | :--- |
-| **Backend REST API** | **Render.com** (ADR-015) | `https://osms-backend-staging.onrender.com` | Staging (`NODE_ENV=production`) | Verified Node 20 runtime; `/api/health` 200 OK |
-| **Frontend Web App** | **Vercel** | `https://osms-frontend-staging.vercel.app` | Staging (`Vite Production Build`) | Deployed from `develop`; SPA rewrites active |
-| **Primary Database** | **MongoDB Atlas** | `osms-staging` (Cluster Replica Set) | Staging Isolated Cluster | Mongoose SRV; Replica set transactions active |
+| **Backend REST API** | **Render.com** (ADR-015) | `https://osms-backend-staging.onrender.com` | Existing Render Web Service (`NODE_ENV=production`) | Verified Node 20 runtime; `/api/health` 200 OK |
+| **Frontend Web App** | **Vercel** (DDP-083) | `https://osms-frontend-staging.vercel.app` | Vercel Production Environment (Branch tracked: `develop`) | Vite production build; `vercel.json` SPA rewrite active |
+| **Primary Database** | **MongoDB Atlas** | Configured Atlas Cluster | Mongoose SRV connection via Backend | Replica set transactions active; Chatbot TTL verified |
 | **Payment Sandbox** | **PayHere Sandbox** | `sandbox.payhere.lk` | Non-production Sandbox Mode | Merchant ID configured in Render secrets |
-| **Cloud Storage** | **Cloudinary** | `darshana-opticals-staging` | Non-production Media Cloud | Secure API keys in Render secrets |
+| **Media Cloud** | **Cloudinary** | `darshana-opticals-staging` | Non-production Media Cloud | Secure API keys in Render secrets |
+
+> **Historical Staging Notice:** The dedicated AWS App Runner, Amazon ECR, and separate multi-stack AWS staging baselines described in earlier infrastructure issues (`docs/staging-environment.md`, `docs/backend-staging-deployment.md`) are historical specifications and do not represent the active DDP-083 live deployment path.
 
 ---
 

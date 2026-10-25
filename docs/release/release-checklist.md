@@ -4,11 +4,12 @@
 **Target Release Version:** `v1.0.0`  
 **Tracking Issue:** [darshana-opticals-osms/infra#12](https://github.com/darshana-opticals-osms/infra/issues/12)  
 **Release Lead / Role:** Senior Full Stack Developer & Release Management Team  
-**Hosting Topology:**  
-- **Frontend Staging:** Vercel (Tracking `develop`, Vite SPA rewrite)  
-- **Backend Staging:** Render.com (Node.js/Express runtime over HTTPS per ADR-015)  
-- **Database Staging:** MongoDB Atlas (`osms-staging` Replica Set)  
+**Hosting Architecture (Approved DDP-083 Model):**  
+- **Frontend Deployment:** Vercel Production environment (Tracking `develop`, Vite SPA rewrite)  
+- **Backend API:** Existing Render.com web service (Node.js/Express runtime over HTTPS per ADR-015)  
+- **Database:** Configured MongoDB Atlas cluster (accessed via backend; no separate staging database created)  
 - **External Providers:** PayHere Sandbox, Cloudinary, AI Chatbot API  
+- **Historical Notice:** Dedicated AWS App Runner, ECR, and separate multi-stack AWS staging baselines from earlier infra #4/#9 are retained as historical specifications.  
 
 ---
 
@@ -73,8 +74,8 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Frontend CI run URL and commit SHA recorded.
 
 ### AC7 – Verify Infrastructure and Deployment Configuration
-- [x] Backend deployed to Render.com Node.js runtime over HTTPS (ADR-015).
-- [x] Frontend deployed to Vercel connected to Render backend.
+- [x] Backend deployed to existing Render.com Node.js runtime over HTTPS (ADR-015).
+- [x] Frontend deployed to Vercel Production environment tracking `develop` connected to Render backend (DDP-083).
 - [x] `VITE_API_BASE_URL` properly configured to Render HTTPS API without trailing slash conflicts.
 - [x] MongoDB Atlas SRV URI configured securely in Render environment variables.
 - [x] Strict CORS origin whitelist enforced (Vercel domain allowed; wildcard `*` rejected).
@@ -107,14 +108,14 @@ According to the SENG 34213 System Development Project guideline and the project
 - [x] Residual performance risks and limits documented.
 
 ### AC11 – Verify Staging Deployment (DDP-082 & DDP-083)
-- [x] Frontend staging URL active on Vercel over HTTPS (`https://osms-frontend-staging.vercel.app`).
-- [x] Backend health endpoint (`/api/health`) returns HTTP 200 OK with valid uptime on Render.
+- [x] Frontend staging URL active on Vercel over HTTPS (`https://osms-frontend-staging.vercel.app`) tracking `develop`.
+- [x] Backend health endpoint (`/api/health`) returns HTTP 200 OK with valid uptime on existing Render service.
 - [x] Frontend successfully communicates with backend without CORS errors.
-- [x] Session persistence and token refresh behave as expected.
-- [x] Staging verification performed on live cloud URLs, not localhost.
+- [x] Unified deployment approach confirmed; no separate staging stack or database created per DDP-083.
+- [x] Live cloud URLs verified; historical AWS App Runner baseline retained as historical reference only.
 
 ### AC12 – Verify MongoDB & Migration Readiness (DDP-077)
-- [x] MongoDB Atlas `osms-staging` database running on Replica Set.
+- [x] Configured MongoDB Atlas database cluster running on Replica Set with transaction support.
 - [x] Required database indexes provisioned.
 - [x] Chatbot usage TTL index (`chatbotusages.expiresAt`) verified (1-hour auto-expiry).
 - [x] Unique constraints (`users.email`, customer ID) active and functioning.

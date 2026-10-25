@@ -49,7 +49,7 @@ test("release-manifest: documents all 4 repositories, SemVer v1.0.0, and cloud r
   assert.ok(content.includes("v1.0.0"), "Must declare version v1.0.0");
   assert.ok(content.includes("Render.com"), "Must document Render.com backend runtime");
   assert.ok(content.includes("Vercel"), "Must document Vercel frontend runtime");
-  assert.ok(content.includes("osms-staging"), "Must document staging database");
+  assert.ok(content.includes("MongoDB Atlas"), "Must document MongoDB Atlas database");
   assert.ok(content.includes("develop"), "Must identify develop as source branch");
   assert.ok(content.includes("main"), "Must identify main as target branch");
 });

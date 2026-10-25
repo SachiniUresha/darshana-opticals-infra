@@ -67,7 +67,7 @@ The Darshana Opticals OSMS release protocol enforces a strict, multi-stage Quali
 
 ## 4. Gate 3: Critical Integration & E2E Workflows Gate (AC8 / DDP-084)
 
-System integration and end-to-end tests verify end-to-end user journeys across the connected Vercel frontend, Render backend, and MongoDB Atlas staging cluster:
+System integration and end-to-end tests verify end-to-end user journeys across the connected Vercel frontend (tracking `develop`), existing Render.com backend, and configured MongoDB Atlas database under the approved DDP-083 architecture:
 
 | Workflow ID | Business Workflow | Acceptance Criteria & Behavior | Status |
 | :--- | :--- | :--- | :--- |

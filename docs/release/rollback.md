@@ -4,11 +4,12 @@
 **Target Release Version:** `v1.0.0`  
 **Tracking Issue:** [darshana-opticals-osms/infra#12](https://github.com/darshana-opticals-osms/infra/issues/12)  
 **Governance & AC Alignment:** AC7, AC11, AC12, AC13, AC20  
-**Hosting Topology:**  
-- **Frontend Staging:** Vercel (`https://osms-frontend-staging.vercel.app` tracking `develop`)  
-- **Backend Staging:** Render.com (`https://osms-backend-staging.onrender.com` per ADR-015)  
-- **Database Staging:** MongoDB Atlas (`osms-staging` Replica Set)  
+**Hosting Architecture (Approved DDP-083 Model):**  
+- **Frontend Deployment:** Vercel Production environment (`https://osms-frontend-staging.vercel.app` tracking `develop`)  
+- **Backend API:** Existing Render.com service (`https://osms-backend-staging.onrender.com` per ADR-015)  
+- **Database:** Configured MongoDB Atlas cluster (reached only through backend; no separate staging database created)  
 - **Integrations:** PayHere Sandbox, Cloudinary, AI Chatbot Provider  
+- **Historical Notice:** Dedicated AWS App Runner and separate multi-stack AWS staging baselines from earlier infra #4/#9 are retained as historical specifications and do not represent the active DDP-083 deployment path.  
 
 ---
 
@@ -31,20 +32,21 @@ A rollback must be initiated immediately if any of the following critical condit
 Before declaring any release candidate operational or stable, the following verification probes must be executed against the live cloud infrastructure:
 
 ```text
-┌─────────────────────────────────┐
-│   Vercel Frontend Staging       │
-│ https://osms-frontend-staging...│
-└──────────────┬──────────────────┘
-               │ (HTTPS GET / POST)
-               ▼
-┌─────────────────────────────────┐       ┌───────────────────────────────┐
-│   Render.com Backend Staging    │◄─────►│   MongoDB Atlas Replica Set   │
-│ https://osms-backend-staging... │       │   Database: osms-staging      │
-└──────────────┬──────────────────┘       └───────────────────────────────┘
-               │
-               ├──────► PayHere Sandbox (sandbox.payhere.lk)
-               ├──────► Cloudinary Storage (darshana-opticals-staging)
-               └──────► AI Chatbot API (1-Hour TTL Index Gate)
+┌──────────────────────────────────────┐
+│   Vercel Production Environment      │
+│   (Branch Tracked: develop)          │
+│   https://osms-frontend-staging...   │
+└──────────────────┬───────────────────┘
+                   │ (HTTPS GET / POST)
+                   ▼
+┌──────────────────────────────────────┐       ┌───────────────────────────────┐
+│   Render.com Backend Web Service     │◄─────►│   Configured MongoDB Atlas    │
+│   https://osms-backend-staging...    │       │   (Reached via Backend only)  │
+└──────────────────┬───────────────────┘       └───────────────────────────────┘
+                   │
+                   ├──────► PayHere Sandbox (sandbox.payhere.lk)
+                   ├──────► Cloudinary Storage (darshana-opticals-staging)
+                   └──────► AI Chatbot API (1-Hour TTL Index Gate)
 ```
 
 ### Verification Checklist:
