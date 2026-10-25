@@ -29,7 +29,7 @@ No defect is considered verified only because its implementation issue is closed
 
 | Source | Status | DDP-092 Use |
 | --- | --- | --- |
-| DDP-084 – System Integration and E2E Testing (`infra#11`) | Open | Final E2E findings pending |
+| DDP-084 – System Integration and E2E Testing (`infra#11`) | Complete | E2E and regression evidence available |
 | DDP-085 – OWASP Security Verification (`backend#91`) | Complete | Security regression and release-gate evidence available |
 | DDP-086 – Performance and Reliability Testing (`backend#92`) | Complete | Performance/reliability evidence available |
 | DDP-091 – Final UAT and Demonstration (`infra#13`) | Open | Final UAT findings pending |
@@ -140,6 +140,27 @@ DDP-096 provides targeted automated regression evidence for the classification d
 
 Automated checkout, loyalty, payment, and Order lifecycle regression tests passed after the fix.
 
+### System Integration and E2E
+
+DDP-084 has been completed, peer reviewed, approved, and merged through `darshana-opticals-osms/infra#19`.
+
+Final DDP-084 verification recorded:
+
+- Playwright E2E: **10/10 passed**
+- Backend integration: **645/645 passed**
+- Frontend regression: **202/202 passed**
+- Manual appointment cancellation: **PASS**
+- Manual Doctor Session overlap prevention: **PASS**
+- Authentication and authorization retest: **7/7 passed**
+
+The DDP-084 execution used fictional non-production test data and documented the approved hosted testing environment.
+
+The deployed PayHere successful-payment completion was not verified because of the current hosting/domain configuration limitation.
+
+This limitation was documented transparently and was not reported as a passed deployed payment scenario.
+
+No confirmed application defect was established from this limitation. It remains an environment/deployment verification limitation for release documentation.
+
 ### Performance and Reliability
 
 DDP-086 has been completed and provides the authoritative performance and reliability evidence for final QA documentation.
@@ -150,22 +171,7 @@ Performance findings should not be duplicated here unless they represent an iden
 
 ## 5. Pending Regression Inputs
 
-The following sources are still open and must be reviewed before final DDP-092 sign-off:
-
-### DDP-084 – System Integration and E2E Testing
-
-Pending evidence may include findings from:
-
-- Customer purchase workflow.
-- PayHere sandbox integration.
-- Order and inventory consistency.
-- Doctor Session and appointment booking.
-- Clinical prescription workflows.
-- Cross-customer access.
-- Cross-branch access.
-- Role-based E2E verification.
-
-Any verified defect discovered by DDP-084 must be added to the defect register with its final disposition.
+The following source is still open and must be reviewed before final DDP-092 sign-off:
 
 ### DDP-091 – Final UAT and Demonstration
 
@@ -183,16 +189,18 @@ Any material UAT defect must be linked and triaged before final DDP-092 sign-off
 
 ## 6. Current Release-Blocker Assessment
 
-Based on the completed DDP-085 and DDP-086 evidence and the currently verified defect records:
+Based on the completed DDP-084, DDP-085, and DDP-086 evidence and the currently verified defect records:
 
 - No unresolved Critical security finding is currently identified.
 - No unresolved High security dependency vulnerability is currently identified.
 - DDP-096 has been fixed with automated regression evidence.
+- DDP-084 completed with 10/10 Playwright tests, 645/645 backend integration tests, and 202/202 frontend regression tests passing.
+- No additional confirmed release-blocking defect was identified from the completed DDP-084 execution.
 - No additional release-blocking defect is recorded in this DDP-092 register at this stage.
 
 However, this is **not yet the final DDP-092 release-regression sign-off**.
 
-Final sign-off remains dependent on reviewing the completed findings from DDP-084 and DDP-091 and recording any resulting defects or explicitly confirming that no additional release blockers were identified.
+Final sign-off remains dependent on reviewing the completed findings from DDP-091 and recording any resulting defects or explicitly confirming that no additional release blockers were identified.
 
 ---
 
@@ -217,11 +225,10 @@ No finding may be silently discarded.
 
 Final DDP-092 sign-off will be completed after:
 
-1. DDP-084 final E2E findings are reviewed.
-2. DDP-091 final UAT findings are reviewed.
-3. Any newly identified defects are triaged.
-4. Required fixes are retested.
-5. Critical regression areas are confirmed.
-6. Remaining non-critical limitations are documented.
-7. Final release-blocker status is communicated to DDP-090.
-8. Final regression evidence is provided to DDP-087.
+1. DDP-091 final UAT findings are reviewed.
+2. Any newly identified defects are triaged.
+3. Required fixes are retested.
+4. Critical regression areas are confirmed.
+5. Remaining non-critical limitations are documented.
+6. Final release-blocker status is recorded for release documentation.
+7. Final regression evidence is provided to DDP-087.
