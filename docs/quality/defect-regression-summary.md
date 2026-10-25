@@ -1,9 +1,9 @@
 # DDP-092 – Final Defect and Regression Summary
 
 **Issue:** `darshana-opticals-osms/infra#14`
-**Version:** 0.1
+**Version:** 1.0
 **Prepared:** 25 October 2026
-**Status:** In Progress
+**Status:** Complete
 **Working Branch:** `fix/92-final-defect-regression`
 
 ---
@@ -32,7 +32,7 @@ No defect is considered verified only because its implementation issue is closed
 | DDP-084 – System Integration and E2E Testing (`infra#11`) | Complete | E2E and regression evidence available |
 | DDP-085 – OWASP Security Verification (`backend#91`) | Complete | Security regression and release-gate evidence available |
 | DDP-086 – Performance and Reliability Testing (`backend#92`) | Complete | Performance/reliability evidence available |
-| DDP-091 – Final UAT and Demonstration (`infra#13`) | Open | Final UAT findings pending |
+| DDP-091 – Final UAT and Demonstration (`infra#13`) | Evidence merged | Final UAT findings reviewed |
 | DDP-096 – Checkout Classification Defect (`backend#97`) | Closed | Verified defect/fix and automated regression evidence available |
 
 ---
@@ -169,40 +169,60 @@ Performance findings should not be duplicated here unless they represent an iden
 
 ---
 
-## 5. Pending Regression Inputs
+## 5. Final UAT Review
 
-The following source is still open and must be reviewed before final DDP-092 sign-off:
+DDP-091 UAT documentation was peer reviewed, approved, and merged through `darshana-opticals-osms/infra#25`.
 
-### DDP-091 – Final UAT and Demonstration
+The reviewed UAT report records:
 
-Pending UAT findings must be reviewed for:
+- Hosted non-payment UAT scenarios: **21 PASS**
+- Hosted functional failures reported: **0**
+- Hosted PayHere payment verification: **1 Pending**
+- Localhost PayHere Sandbox payment: **PASS**
+- Customer, Branch Assistant, Branch Manager, Optometrist, System Administrator, cross-role, and negative workflows were reported as successfully exercised.
 
-- Functional defects.
-- Cross-module integration problems.
-- User-visible workflow failures.
-- Deployment-specific failures.
-- Demonstration blockers.
+No additional confirmed application defect was reported by the reviewed UAT evidence.
 
-Any material UAT defect must be linked and triaged before final DDP-092 sign-off.
+### Hosted PayHere Limitation
 
----
+Successful payment completion through the current hosted Vercel frontend remains unverified because the current Vercel-provided subdomain could not complete the intended PayHere website-domain registration.
 
-## 6. Current Release-Blocker Assessment
+The payment workflow was successfully tested in the approved localhost PayHere Sandbox configuration.
 
-Based on the completed DDP-084, DDP-085, and DDP-086 evidence and the currently verified defect records:
+For the current academic demonstration scope:
 
-- No unresolved Critical security finding is currently identified.
-- No unresolved High security dependency vulnerability is currently identified.
-- DDP-096 has been fixed with automated regression evidence.
-- DDP-084 completed with 10/10 Playwright tests, 645/645 backend integration tests, and 202/202 frontend regression tests passing.
-- No additional confirmed release-blocking defect was identified from the completed DDP-084 execution.
-- No additional release-blocking defect is recorded in this DDP-092 register at this stage.
+- Hosted non-payment workflows remain available for demonstration.
+- The successfully verified PayHere Sandbox workflow is demonstrated separately through localhost.
+- The hosted PayHere result is **not** represented as PASS.
+- The hosted limitation is retained as a deployment/integration limitation rather than classified as a confirmed application defect.
+- Final hosted payment verification remains future client-deployment work after suitable domain configuration.
 
-However, this is **not yet the final DDP-092 release-regression sign-off**.
+The merged UAT documentation still owns its detailed execution-evidence and final client-acceptance records. Those documentation activities do not create an additional DDP-092 application defect.
 
-Final sign-off remains dependent on reviewing the completed findings from DDP-091 and recording any resulting defects or explicitly confirming that no additional release blockers were identified.
+## 6. Final Release-Blocker Assessment
 
----
+The final DDP-092 assessment incorporates the completed DDP-084, DDP-085, DDP-086, DDP-096 remediation, and the merged DDP-091 UAT evidence.
+
+Final findings:
+
+- DDP-096 checkout classification defect was fixed and verified through automated regression testing.
+- DDP-084 completed with 10/10 Playwright E2E tests, 645/645 backend integration tests, and 202/202 frontend regression tests passing.
+- DDP-085 completed with the security release gate marked PASS and no unresolved Critical or High dependency vulnerabilities.
+- DDP-086 completed and provides the authoritative performance and reliability assessment.
+- DDP-091 reports 21 hosted non-payment UAT scenarios PASS and 0 other hosted functional failures.
+- No additional confirmed Critical or High application defect was identified from the reviewed UAT evidence.
+- No additional confirmed release-blocking regression was identified from the completed Sprint 3 testing evidence.
+- Hosted PayHere completion remains pending and is documented separately as an environment/domain integration limitation.
+
+### Final DDP-092 Release Decision
+
+For the current academic demonstration and verified release scope:
+
+**PASS – no unresolved Critical release-blocking application defect is identified.**
+
+The hosted PayHere limitation must remain visible in final QA, UAT, and release documentation and must not be represented as a successfully verified hosted payment flow.
+
+Future client-facing payment deployment still requires custom-domain configuration and successful hosted PayHere verification before final client acceptance.
 
 ## 7. Defect Disposition Rules
 
@@ -221,14 +241,21 @@ No finding may be silently discarded.
 
 ## 8. Final Sign-Off
 
-**Current status:** In Progress
+**Current status:** Complete
 
-Final DDP-092 sign-off will be completed after:
+DDP-092 final defect triage and regression coordination is complete for the current verified project release scope.
 
-1. DDP-091 final UAT findings are reviewed.
-2. Any newly identified defects are triaged.
-3. Required fixes are retested.
-4. Critical regression areas are confirmed.
-5. Remaining non-critical limitations are documented.
-6. Final release-blocker status is recorded for release documentation.
-7. Final regression evidence is provided to DDP-087.
+Final status:
+
+1. Relevant Sprint 3 findings were reviewed and triaged.
+2. DDP-096 was resolved and verified through targeted automated regression testing.
+3. DDP-084 integration and E2E evidence was reviewed.
+4. DDP-085 security evidence was reviewed.
+5. DDP-086 performance and reliability evidence was reviewed.
+6. DDP-091 merged UAT evidence was reviewed.
+7. No unresolved Critical release-blocking application defect is currently identified.
+8. No newly confirmed High release-blocking application defect was reported by the reviewed final UAT evidence.
+9. The hosted PayHere limitation remains explicitly documented and deferred as deployment/integration verification work.
+10. Final regression evidence is available for DDP-087 QA documentation and final project evidence.
+
+**DDP-092 disposition: PASS – regression coordination complete.**
