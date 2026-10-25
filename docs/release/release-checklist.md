@@ -93,9 +93,9 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ### AC9 – Verify Security Release Gate (DDP-085 / OWASP)
 - [x] OWASP Top 10 compliance checklist completed and documented.
-- [ ] Frontend security PR #68 open (pending peer review and merge into `develop`).
-- [ ] Backend security PR #108 open (pending peer review and merge into `develop`).
-- [ ] Final security gate sign-off pending merge of PR #68 and PR #108.
+- [x] Frontend security PR #68 reviewed and merged into `develop`.
+- [x] Backend security PR #108 reviewed and merged into `develop`.
+- [ ] Post-merge live staging deployment and security verification pending recording of live deployment evidence.
 - [x] Authorization checks enforced server-side on all sensitive endpoints.
 - [x] Payment gateway hash generation validated server-side.
 - [x] Patient clinical/prescription data access restricted to authorized clinical roles.
@@ -152,7 +152,7 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ### AC17 – Prepare Reviewed `develop` to `main` Pull Requests
 - [x] PR templates and specifications prepared for `infra`, `backend`, `frontend`, and `documents`.
-- [ ] Production promotion PRs pending merge of open security fixes in `develop`.
+- [ ] Production promotion PRs pending recording of post-merge deployment verification evidence on `develop`.
 - [x] Peer review checklist and guidelines established (`docs/release/release-pr-template.md`).
 - [x] Blocking comments resolution and merge requirements defined.
 
@@ -178,7 +178,7 @@ According to the SENG 34213 System Development Project guideline and the project
 ### AC21 – Conduct Final Release Smoke Tests
 - [x] Baseline web application loads over HTTPS without console errors (SMK-01 verified).
 - [x] Backend `/api/health` reports status OK on Render (SMK-02 verified).
-- [ ] End-to-end customer and checkout verification pending live deployment of PR #68 and #108.
+- [ ] End-to-end customer and checkout verification pending recording of live staging deployment evidence following merge of PRs #68 and #108.
 - [x] Smoke-test register and execution protocol documented.
 
 ### AC22 – Prepare GitHub Release Notes
@@ -195,8 +195,8 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ### AC24 – Define Final Release Sign-Off
 - [ ] Quality gate decision confirmed:
-  - [ ] **READY FOR RELEASE** (Blocked until frontend#68 and backend#108 are merged)
-  - [x] **PENDING / IN VERIFICATION** (Release candidate in verification; awaiting security PR reconciliations)
+  - [ ] **READY FOR RELEASE** (Blocked until post-merge deployment evidence is recorded)
+  - [x] **PENDING / IN VERIFICATION** (Release candidate in verification; security PRs merged, awaiting live post-merge deployment verification evidence)
 - [x] Release readiness framework established by team leads.
 
 ---
@@ -216,6 +216,6 @@ According to the SENG 34213 System Development Project guideline and the project
 
 ## 4. Current Release Status
 
-- **Status:** 🟡 **PENDING / IN VERIFICATION** (Release Candidate undergoing verification; pending open PRs frontend#68 and backend#108)
-- **Current Milestone:** Release Coordination & Verification Framework Established
-- **Next Blocker Resolution:** Merge frontend PR #68 and backend PR #108, execute live smoke-test verification protocol, then execute release promotion.
+- **Status:** 🟡 **PENDING / IN VERIFICATION** (Release Candidate undergoing verification; security PRs #68 and #108 merged into develop, pending post-merge live staging deployment verification evidence)
+- **Current Milestone:** Security PRs Reconciled & Merged into `develop`; Live Deployment Verification in Progress
+- **Next Blocker Resolution:** Record live staging deployment revisions for merged PR #68 & PR #108, execute live smoke-test verification protocol, then execute release promotion to `main`.

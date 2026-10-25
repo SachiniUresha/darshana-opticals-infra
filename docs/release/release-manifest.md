@@ -21,8 +21,8 @@ In accordance with Acceptance Criteria **AC1, AC2, AC3, AC4, AC16, AC18, and AC1
 
 | Component | Repository | Role & Stack | Source Branch | Target Branch | Target SemVer Tag | Release Status & PR Reference |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Backend API** | `darshana-opticals-osms/backend` | Node.js 20, Express, Mongoose, JWT Auth, RBAC, PayHere SDK | `develop` | `main` | `v1.0.0` | 🟡 **Pending Security PR #108** |
-| **Frontend UI** | `darshana-opticals-osms/frontend` | React 18, Vite, React Router, TailwindCSS, Axios | `develop` | `main` | `v1.0.0` | 🟡 **Pending Security PR #68** (SPA rewrite PR #77 merged) |
+| **Backend API** | `darshana-opticals-osms/backend` | Node.js 20, Express, Mongoose, JWT Auth, RBAC, PayHere SDK | `develop` | `main` | `v1.0.0` | 🟢 **Merged Security PR #108** (Post-merge deployment verification pending) |
+| **Frontend UI** | `darshana-opticals-osms/frontend` | React 18, Vite, React Router, TailwindCSS, Axios | `develop` | `main` | `v1.0.0` | 🟢 **Merged Security PR #68** & **SPA PR #77** (Post-merge deployment verification pending) |
 | **Infrastructure**| `darshana-opticals-osms/infra` | Docker, Compose, GitHub Actions, Staging Baselines, Release Docs | `develop` | `main` | `v1.0.0` | 🟢 **Release Coordination Active (PR #12)** |
 | **Documentation** | `darshana-opticals-osms/documents` | SRS, SDS, ADR-001..015, Test Registers, QA & Final Reports | `develop` | `main` | `v1.0.0` | 🟢 **Deliverables Approved (PRs #46, #47, #48)** |
 
@@ -108,8 +108,8 @@ The table below establishes provenance from source revisions through peer-review
 | Component / Repo | Integration Branch (`develop`) Tracking Ref | Target `main` SemVer Tag | Active / Referenced Pull Request | Deployed Staging Revision / Environment |
 | :--- | :--- | :--- | :--- | :--- |
 | **Infrastructure** (`darshana-opticals-osms/infra`) | Base: `757f5b0` (PR #22); Branch: `chore/12-final-release-coordination` | `v1.0.0` | [infra#12](https://github.com/darshana-opticals-osms/infra/issues/12) (Final Release Coordination) | GitHub Actions CI runner (`staging-baseline.yml`); Node 20 test suite |
-| **Backend API** (`darshana-opticals-osms/backend`) | Integration branch: `develop` | `v1.0.0` | [backend#108](https://github.com/darshana-opticals-osms/backend/pull/108) (OWASP Security & Verification) | Render.com Web Service (`https://osms-backend-staging.onrender.com`); Node 20 / Express |
-| **Frontend Web App** (`darshana-opticals-osms/frontend`) | Integration branch: `develop` | `v1.0.0` | [frontend#68](https://github.com/darshana-opticals-osms/frontend/pull/68) (Security controls) & [frontend#77](https://github.com/darshana-opticals-osms/frontend/pull/77) (Vercel SPA rewrite) | Vercel Production Environment (`https://osms-frontend-staging.vercel.app`); Vite build |
+| **Backend API** (`darshana-opticals-osms/backend`) | Integration branch: `develop` | `v1.0.0` | [backend#108](https://github.com/darshana-opticals-osms/backend/pull/108) (OWASP Security & Verification - MERGED) | Render.com Web Service (`https://osms-backend-staging.onrender.com`); Node 20 / Express |
+| **Frontend Web App** (`darshana-opticals-osms/frontend`) | Integration branch: `develop` | `v1.0.0` | [frontend#68](https://github.com/darshana-opticals-osms/frontend/pull/68) (Security controls - MERGED) & [frontend#77](https://github.com/darshana-opticals-osms/frontend/pull/77) (Vercel SPA rewrite - MERGED) | Vercel Production Environment (`https://osms-frontend-staging.vercel.app`); Vite build |
 | **Documentation** (`darshana-opticals-osms/documents`) | Integration branch: `develop` | `v1.0.0` | [documents#46](https://github.com/darshana-opticals-osms/documents/pull/46) (QA Registers), [documents#47](https://github.com/darshana-opticals-osms/documents/pull/47) (SRS/SDS), [documents#48](https://github.com/darshana-opticals-osms/documents/pull/48) (Final Report) | SENG 34213 Approved Academic Deliverables Archive |
 
 ---
@@ -146,4 +146,4 @@ In accordance with project security policies:
 | **Feature Freeze** | All Sprint 1-3 modules integrated | Confirmed merged into `develop` | ✅ **PASS** |
 | **Provenance** | Traceable Git commits to Render & Vercel | Documented in Section 5.2 with commit & PR refs | ✅ **PASS** |
 | **Version Alignment** | Unified SemVer `v1.0.0` across components | Agreed by release team | ✅ **PASS** |
-| **Security Gates** | OWASP Top 10 verification across Frontend & Backend | PRs frontend#68 & backend#108 open in review | 🟡 **PENDING VERIFICATION** |
+| **Security Gates** | OWASP Top 10 verification across Frontend & Backend | PRs frontend#68 & backend#108 merged; post-merge live staging deployment verification pending | 🟡 **PENDING DEPLOYMENT VERIFICATION** |
