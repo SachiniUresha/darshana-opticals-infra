@@ -4,6 +4,18 @@ Infrastructure, Docker, CI/CD, and deployment configurations for the Optical Sho
 
 ---
 
+## 🚀 Final Software Release (v1.0.0 / Issue #12)
+
+The controlled final software release for OSMS coordinates release artifacts, deployment verification, and cross-repository audit evidence across `backend`, `frontend`, `infra`, and `documents`:
+
+- 📋 [Release Checklist & Sign-Off](docs/release/release-checklist.md) – End-to-end tracking of AC1–AC24 and release gates.
+- 📦 [Release Manifest](docs/release/release-manifest.md) – Multi-repository component inventory, SemVer `v1.0.0`, and deployment provenance.
+- 🛡️ [Quality Gates & Evidence Matrix](docs/release/quality-gates.md) – Verification records for CI, E2E (DDP-084), OWASP (DDP-085), Performance (DDP-086), and Documentation (DDP-087..089).
+- 🔄 [Deployment Verification & Rollback Runbook](docs/release/rollback.md) – Non-destructive rollback procedures for Vercel, Render.com, and MongoDB Atlas.
+- 📝 [Release Notes & Changelog](docs/release/release-notes.md) – Final release notes, module changelog, and staging smoke-test register.
+
+---
+
 ## Current Deployment Approach (DDP-083)
 
 The team's current frontend delivery plan deploys the **frontend `develop` branch to Vercel Production** and connects it to the existing **Render.com backend** and its configured **MongoDB Atlas** database. **Do not change or deploy `main`** under DDP-083. There is no separate staging frontend/backend/database planned by this issue.
